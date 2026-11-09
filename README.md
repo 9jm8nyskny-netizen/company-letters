@@ -10,6 +10,6 @@
 - سجل الخطابات وترقيم تلقائي لكل شركة.
 
 ## قاعدة البيانات (Firebase)
-عند إضافة إعدادات Firebase في `FIREBASE_CONFIG` داخل `index.html` يصبح الحفظ في Firestore مع تسجيل دخول بالبريد وكلمة المرور.
-بدونها يحفظ التطبيق في المتصفح فقط.
+التطبيق مربوط بمشروع Firebase `company-letters` (Firestore في الدمام me-central2) مع تسجيل دخول بالبريد وكلمة المرور.
+الحسابات تُضاف من Firebase Console ← Authentication ← Users (التسجيل الذاتي مقفل).
 قواعد Firestore المقترحة في `firestore.rules`.

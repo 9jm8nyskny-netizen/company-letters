@@ -339,7 +339,7 @@ function dataURLtoBlobURL(d){
 const URLS = {}; for(const k in ASSETS) URLS[k] = dataURLtoBlobURL(ASSETS[k]);
 
 /* ---------------- database (Firebase, or this browser when not configured) ---------------- */
-const FIREBASE_CONFIG = /*FIREBASE*/null;
+const FIREBASE_CONFIG = {"apiKey": "AIzaSyCd_TgO9RcBsox4p1veoxGM6jcDja5Doxs", "authDomain": "company-letters.firebaseapp.com", "projectId": "company-letters", "storageBucket": "company-letters.firebasestorage.app", "messagingSenderId": "1060245065053", "appId": "1:1060245065053:web:916ac7a2dc2fc040d9acb4"};
 const COL_PREFIX = 'ltr_';
 const cloud = {on:false, db:null, auth:null, known:{}, unsub:[], counters:{}};
 // collections shared through the database; each knows how to read its in-memory list and its local key
