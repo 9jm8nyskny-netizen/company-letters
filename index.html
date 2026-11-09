@@ -540,7 +540,7 @@ const BUILTIN_TPLS = [
   {...HR_SIGN, id:'resign', name:'قبول استقالة', category:'شؤون الموظفين', to:'السيد / {اسم الموظف}\nالرقم الوظيفي: {الرقم الوظيفي}', title:'', subject:'قبول استقالة',
    body:'إشارة إلى خطاب الاستقالة المقدم منكم بتاريخ {تاريخ تقديم الاستقالة}، نفيدكم بقبول استقالتكم، على أن يكون آخر يوم عمل لكم هو {آخر يوم عمل}، وذلك بعد انتهاء فترة الإشعار المنصوص عليها في عقد العمل.\nوعليكم تسليم جميع ما بعهدتكم من أدوات وممتلكات الشركة، واستكمال إجراءات إخلاء الطرف، ليتم صرف مستحقاتكم النظامية وفقاً لنظام العمل.\nونشكركم على ما قدمتموه من جهود خلال فترة عملكم معنا، متمنين لكم التوفيق في مسيرتكم القادمة.',
    closing:'وتفضلوا بقبول فائق الاحترام،'},
-  {...HR_SIGN, id:'traffic-fines', name:'طلب سداد مخالفات مرورية', category:'طلبات داخلية', showNo:false, light:true, toPos:'afterSubject', salutation:'',
+  {...HR_SIGN, id:'traffic-fines', ver:2, name:'طلب سداد مخالفات مرورية', category:'طلبات داخلية', showNo:false, light:true, toPos:'afterSubject', salutation:'',
    to:'إلى / الإدارة المالية   المحترمين\nإلى / الإدارة التنفيذية   المحترمين', title:'', subject:'طلب اعتماد سداد مخالفات مرورية',
    body:'نرفع لسعادتكم طلب اعتماد سداد المخالفات المرورية الصادرة بحق الموظف الموضحة بياناته أدناه، والتي ترتبت خلال فترة عمله سائقاً لدى المنشأة قبل حصوله على رخصة القيادة، نظراً لتعذّر استخراجها بسبب انتهاء إقامته.\n## بيانات الموظف\n| اسم الموظف | رقم الهوية / الإقامة | الوظيفة | فترة العمل |\n| {اسم الموظف} | {رقم الهوية} | سائق باص | من {تاريخ البداية} إلى {تاريخ النهاية} |\n## تفاصيل المخالفات\n| م | نوع المخالفة | تاريخ المخالفة | المبلغ (ريال) |\n| 1 | {المخالفة الأولى} | {تاريخ المخالفة الأولى} | {مبلغ المخالفة الأولى} |\n| 2 | {المخالفة الثانية} | {تاريخ المخالفة الثانية} | {مبلغ المخالفة الثانية} |\n|  | الإجمالي |  | =المجموع |\nلذا نأمل التكرم بالموافقة على سدادها وتحمّلها من قبل المنشأة.',
    closing:'شاكرين لكم حسن تعاونكم،', approveTitle:'اعتماد الإدارة', approveName:'م/ لبنى الهمداني'},
@@ -550,7 +550,16 @@ const BUILTIN_TPLS = [
 ];
 let tplOver = store.get('tpl_over', {});
 let tplCustom = store.get('tpl_custom', []);
-function allTpls(){ return BUILTIN_TPLS.map(b => tplOver[b.id] ? {...tplOver[b.id], id:b.id, edited:true} : b).concat(tplCustom.map(c => ({...c, custom:true}))); }
+// a saved copy of a built-in template counts only while it is based on the template's current version
+const isStaleOver = (b, o) => !!o && (o.baseVer || 1) < (b.ver || 1);
+function allTpls(){ return BUILTIN_TPLS.map(b => tplOver[b.id] && !isStaleOver(b, tplOver[b.id]) ? {...tplOver[b.id], id:b.id, edited:true} : b).concat(tplCustom.map(c => ({...c, custom:true}))); }
+function dropStaleOverrides(){
+  const stale = BUILTIN_TPLS.filter(b => isStaleOver(b, tplOver[b.id]));
+  if(!stale.length) return false;
+  stale.forEach(b => delete tplOver[b.id]); persist('overrides');
+  toast('تم تحديث ' + stale.map(b => '«'+b.name+'»').join('، ') + ' لآخر نسخة');
+  return true;
+}
 function getTpl(id){ return allTpls().find(x => x.id === id) || allTpls()[0]; }
 function curTpl(){ return state.tplDraft || getTpl(D().tplId); }
 const TPL_TEXT_KEYS = ['to','title','subject','salutation','body','closing','signCompany','signDept','signName'];
@@ -997,7 +1006,7 @@ function renderTplEditor(box){
   const done = (id, msg) => { state.tplDraft = null; D().tplId = id; const ok = saveTplStores(); renderFields(); render(); toast(ok ? msg : 'تعذر الحفظ: مساحة المتصفح ممتلئة'); };
   bar.querySelector('[data-a=save]').onclick = () => {
     const c = clean(tp);
-    if(isBuiltin) tplOver[c.id] = c;
+    if(isBuiltin){ c.baseVer = (BUILTIN_TPLS.find(b => b.id === c.id).ver || 1); tplOver[c.id] = c; }
     else { const i = tplCustom.findIndex(x => x.id === c.id); if(i >= 0) tplCustom[i] = c; else tplCustom.push(c); }
     done(c.id, 'تم حفظ القالب');
   };
@@ -1221,7 +1230,7 @@ async function startCloud(user){
   try{ await migrateLocal(); }catch(e){ console.error(e); }
   listen('archive', docs => { archive = docs.sort((a, b) => (a.at||0) - (b.at||0)); renderArchive(); });
   listen('templates', docs => { tplCustom = docs; if(state.type === 'template' && !state.tplDraft && !typingInPanel()){ renderFields(); render(); } });
-  listen('overrides', docs => { tplOver = {}; docs.forEach(d => { const {id, ...r} = d; tplOver[id] = r; }); if(state.type === 'template' && !state.tplDraft && !typingInPanel()){ renderFields(); render(); } });
+  listen('overrides', docs => { tplOver = {}; docs.forEach(d => { const {id, ...r} = d; tplOver[id] = r; }); dropStaleOverrides(); if(state.type === 'template' && !state.tplDraft && !typingInPanel()){ renderFields(); render(); } });
   listen('companies', docs => { customCos = docs; customCos.forEach(c => { c.bgUrl = c.bg; c.stampUrl = c.stamp; }); renderCompanies(); if(!typingInPanel()){ renderLookControls(); render(); } });
   listen('stamps', docs => { customStamps = docs; renderLookControls(); render(); });
   listen('sigs', docs => { customSigs = docs; renderLookControls(); render(); });
@@ -1270,7 +1279,7 @@ function initCloud(){
 }
 
 /* ---------------- new version check ---------------- */
-const BUILD_ID = '20261109150135';
+const BUILD_ID = '20261109153236';
 async function checkForUpdate(){
   if(!/^https?:/.test(location.protocol)) return;
   try{
@@ -1286,6 +1295,7 @@ document.addEventListener('visibilitychange', () => { if(document.visibilityStat
 renderCompanies(); renderTypes(); renderFields(); renderLookControls(); render();
 document.fonts && document.fonts.ready.then(render);
 initCloud();
+if(!FIREBASE_CONFIG && dropStaleOverrides()){ renderFields(); render(); }
 </script>
 </body>
 </html>
