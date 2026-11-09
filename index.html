@@ -120,7 +120,10 @@ button,input,select,textarea{font:inherit;color:inherit}
 .bul li{text-align:justify;position:relative;padding-right:5mm}
 .bul li::before{content:"";position:absolute;right:.6mm;top:calc(var(--lh) * .5em - .8mm);width:1.6mm;height:1.6mm;border-radius:50%;background:#111}
 .closing{text-align:center;font-weight:700;margin-top:2mm}
-.sign{position:relative;width:76mm;padding-bottom:15mm;text-align:center;display:flex;flex-direction:column;gap:.6mm;margin-top:4mm;font-weight:700}
+.sign{position:relative;width:76mm;padding-bottom:10mm;text-align:center;display:flex;flex-direction:column;gap:.6mm;margin-top:2mm;font-weight:700}
+.approve{align-self:center;text-align:center;font-weight:700;display:flex;flex-direction:column;gap:.8mm;margin-top:0;min-width:70mm}
+.approve .sl2{font-weight:600}
+.approve .dots{font-weight:400;color:#333;margin-top:2.5mm;line-height:1}
 .sign.al-left{margin-right:auto}
 .sign.al-right{margin-left:auto}
 .sign.al-center{margin-inline:auto}
@@ -137,7 +140,7 @@ button,input,select,textarea{font:inherit;color:inherit}
 .h3{font-weight:700;font-size:calc(var(--fs) * 1.05);display:flex;align-items:center;gap:2mm;margin-top:1mm}
 .h3::before{content:"";width:2.2mm;height:2.2mm;background:#111;transform:rotate(45deg);flex:none}
 .ttbl{width:100%;border-collapse:collapse;font-size:calc(var(--fs) * .95)}
-.ttbl th,.ttbl td{border:.3mm solid #8a8f98;padding:1.5mm 2.5mm;text-align:center;vertical-align:middle}
+.ttbl th,.ttbl td{border:.3mm solid #8a8f98;padding:1.1mm 2.5mm;text-align:center;vertical-align:middle}
 .ttbl th{background:#f1f2f4;font-weight:700}
 .ttbl td.n,.ttbl th.n{width:9mm}
 .ttbl tr.tot td{background:#f7f7f8;font-weight:700}
@@ -533,9 +536,10 @@ const BUILTIN_TPLS = [
   {...HR_SIGN, id:'resign', name:'قبول استقالة', category:'شؤون الموظفين', to:'السيد / {اسم الموظف}\nالرقم الوظيفي: {الرقم الوظيفي}', title:'', subject:'قبول استقالة',
    body:'إشارة إلى خطاب الاستقالة المقدم منكم بتاريخ {تاريخ تقديم الاستقالة}، نفيدكم بقبول استقالتكم، على أن يكون آخر يوم عمل لكم هو {آخر يوم عمل}، وذلك بعد انتهاء فترة الإشعار المنصوص عليها في عقد العمل.\nوعليكم تسليم جميع ما بعهدتكم من أدوات وممتلكات الشركة، واستكمال إجراءات إخلاء الطرف، ليتم صرف مستحقاتكم النظامية وفقاً لنظام العمل.\nونشكركم على ما قدمتموه من جهود خلال فترة عملكم معنا، متمنين لكم التوفيق في مسيرتكم القادمة.',
    closing:'وتفضلوا بقبول فائق الاحترام،'},
-  {...HR_SIGN, id:'traffic-fines', name:'طلب سداد مخالفات مرورية', category:'طلبات داخلية', to:'إلى / الإدارة المالية   المحترمين\nإلى / الإدارة التنفيذية   المحترمين', title:'', subject:'طلب اعتماد سداد مخالفات مرورية',
-   body:'نرفع لسعادتكم طلب اعتماد سداد مخالفات مرورية صدرت بحق الموظف الموضحة بياناته أدناه، خلال فترة عمله لدى المنشأة.\n## بيانات الموظف\n| اسم الموظف | رقم الهوية / الإقامة | الوظيفة | فترة العمل |\n| {اسم الموظف} | {رقم الهوية} | سائق باص | من {تاريخ البداية} إلى {تاريخ النهاية} |\n## تفاصيل المخالفات\n| م | نوع المخالفة | تاريخ المخالفة | المبلغ (ريال) |\n| 1 | {المخالفة الأولى} | {تاريخ المخالفة الأولى} | {مبلغ المخالفة الأولى} |\n| 2 | {المخالفة الثانية} | {تاريخ المخالفة الثانية} | {مبلغ المخالفة الثانية} |\n|  | الإجمالي |  | =المجموع |\n## مبررات الطلب\nكان الموظف يباشر مهام قيادة الباص قبل حصوله على رخصة القيادة، وذلك لتعذّر استخراجها بسبب انتهاء إقامته، وعليه فإن هذه المخالفات ناتجة عن ظروف العمل لدى المنشأة.\nلذا نأمل من سعادتكم التكرم بالموافقة على سداد المخالفات الموضحة أعلاه وتحمّلها من قبل المنشأة.',
-   closing:'شاكرين لكم حسن تعاونكم،'},
+  {...HR_SIGN, id:'traffic-fines', name:'طلب سداد مخالفات مرورية', category:'طلبات داخلية', showNo:false, toPos:'afterSubject', salutation:'',
+   to:'إلى / الإدارة المالية   المحترمين\nإلى / الإدارة التنفيذية   المحترمين', title:'', subject:'طلب اعتماد سداد مخالفات مرورية',
+   body:'نرفع لسعادتكم طلب اعتماد سداد مخالفات مرورية صدرت بحق الموظف الموضحة بياناته أدناه، خلال فترة عمله لدى المنشأة.\n## مبررات الطلب\nكان الموظف يباشر مهام قيادة الباص قبل حصوله على رخصة القيادة، وذلك لتعذّر استخراجها بسبب انتهاء إقامته، وعليه فإن هذه المخالفات ناتجة عن ظروف العمل لدى المنشأة.\n## بيانات الموظف\n| اسم الموظف | رقم الهوية / الإقامة | الوظيفة | فترة العمل |\n| {اسم الموظف} | {رقم الهوية} | سائق باص | من {تاريخ البداية} إلى {تاريخ النهاية} |\n## تفاصيل المخالفات\n| م | نوع المخالفة | تاريخ المخالفة | المبلغ (ريال) |\n| 1 | {المخالفة الأولى} | {تاريخ المخالفة الأولى} | {مبلغ المخالفة الأولى} |\n| 2 | {المخالفة الثانية} | {تاريخ المخالفة الثانية} | {مبلغ المخالفة الثانية} |\n|  | الإجمالي |  | =المجموع |\nلذا نأمل من سعادتكم التكرم بالموافقة على سداد المخالفات الموضحة أعلاه وتحمّلها من قبل المنشأة.',
+   closing:'شاكرين لكم حسن تعاونكم،', approveTitle:'اعتماد الإدارة', approveName:'م/ لبنى الهمداني'},
   {...HR_SIGN, id:'authorization', name:'خطاب تفويض', category:'خطابات للجهات', to:'سعادة / {الجهة الموجه لها}   المحترمين', title:'', subject:'تفويض',
    body:'تفوّض {اسم الشركة} السيد / **{اسم المفوض}**، {الجنسية} الجنسية، بموجب هوية / إقامة رقم ({رقم الهوية})، بمراجعتكم والقيام بما يلي نيابة عنها:\n- {المهمة المفوض بها}\nويُعد هذا التفويض سارياً حتى تاريخ {تاريخ انتهاء التفويض}، أو حتى إلغائه كتابياً من قبلنا.',
    closing:'شاكرين لكم حسن تعاونكم،'},
@@ -662,7 +666,7 @@ function signBlock(lines){
   const p = lk.pos || {stamp:{x:0,y:0}, sig:{x:0,y:0}};
   let h = '<div class="sign al-'+al+'">'+lines.html;
   if(stampSrc) h += '<img class="drag" data-key="stamp" src="'+stampSrc+'" style="width:'+sz+'mm;left:'+stampBase.left+'mm;top:'+stampBase.top+'mm;transform:translate('+p.stamp.x+'mm,'+p.stamp.y+'mm)" alt="الختم" draggable="false">';
-  if(sig) h += '<img class="drag" data-key="sig" src="'+sig.src+'" style="width:'+sigW+'mm;left:'+((76-sigW)/2)+'mm;bottom:0;max-height:20mm;object-fit:contain;transform:translate('+p.sig.x+'mm,'+p.sig.y+'mm)" alt="التوقيع" draggable="false">';
+  if(sig) h += '<img class="drag" data-key="sig" src="'+sig.src+'" style="width:'+sigW+'mm;left:'+((76-sigW)/2)+'mm;bottom:-2mm;max-height:18mm;object-fit:contain;transform:translate('+p.sig.x+'mm,'+p.sig.y+'mm)" alt="التوقيع" draggable="false">';
   return h + '</div>';
 }
 
@@ -697,15 +701,18 @@ function buildBlocks(){
   if(t === 'template'){
     const tp = curTpl(); const vals = (d.vals = d.vals || {})[tp.id] || {}; const auto = autoVals(d);
     const F = s => markPh(inline(fillTpl(s, vals, auto)));
-    if(tp.showMeta !== false) b.push(metaBlock(d));
+    if(tp.showMeta !== false) b.push(metaBlock(tp.showNo === false ? {...d, letterNo:''} : d));
     const toLines = String(tp.to||'').split('\n').map(s=>s.trim()).filter(Boolean);
-    if(toLines.length) b.push('<div class="toblk">'+toLines.map(l=>'<div>'+F(l)+'</div>').join('')+'</div>');
+    const toHtml = toLines.length ? '<div class="toblk">'+toLines.map(l=>'<div>'+F(l)+'</div>').join('')+'</div>' : '';
+    if(toHtml && tp.toPos !== 'afterSubject') b.push(toHtml);
     if(tp.title) b.push('<div class="doc-title"><span>'+F(tp.title)+'</span></div>');
     if(tp.subject) b.push('<div class="subject"><span>الموضوع / '+F(tp.subject)+'</span></div>');
+    if(toHtml && tp.toPos === 'afterSubject') b.push(toHtml);
     if(tp.salutation) b.push('<p class="bold">'+F(tp.salutation)+'</p>');
     b.push(...parseBody(fillTpl(tp.body, vals, auto)).map(markPh));
     if(tp.closing) b.push('<p class="closing">'+F(tp.closing)+'</p>');
     b.push(signBlock({html:'<div class="sl-co">'+F(tp.signCompany)+'</div><div class="sl2 sl-dept">'+F(tp.signDept)+'</div><div class="sl2 sl-name">'+F(tp.signName)+'</div>'}));
+    if(tp.approveTitle || tp.approveName) b.push('<div class="approve">'+(tp.approveTitle ? '<div>'+F(tp.approveTitle)+'</div>' : '')+(tp.approveName ? '<div class="sl2">'+F(tp.approveName)+'</div>' : '')+'<div class="dots">..............................................</div></div>');
   }
   if(t === 'clearance'){
     const dt = fmtDate(d.date);
@@ -876,7 +883,7 @@ function fieldEl(f, d, t){
   } else {
     let ctl;
     if(f.type === 'textarea') ctl = '<textarea id="'+id+'" rows="'+(f.rows||4)+'"'+(f.big ? ' class="big"' : '')+'></textarea>';
-    else if(f.type === 'select') ctl = '<select id="'+id+'">'+f.opts.map(o=>'<option>'+esc(o)+'</option>').join('')+'</select>';
+    else if(f.type === 'select') ctl = '<select id="'+id+'">'+f.opts.map(o=>'<option value="'+esc(o)+'">'+esc(o)+'</option>').join('')+'</select>';
     else ctl = '<input type="'+(f.type === 'date' ? 'date' : 'text')+'" id="'+id+'">';
     w.innerHTML = '<label for="'+id+'">'+esc(f.label)+'</label>'+ctl+(f.hint ? '<span class="hint">'+esc(f.hint)+'</span>' : '');
     const el = w.querySelector('input,textarea,select'); el.value = d[f.k] ?? '';
@@ -905,9 +912,9 @@ function renderTemplateFields(box, d){
   pick.querySelector('[data-a=dup]').onclick = () => { const c = JSON.parse(JSON.stringify(tp)); c.id = 'u_'+Date.now(); c.isNew = true; c.name = tp.name+' (نسخة)'; c.category = 'قوالبي'; delete c.edited; delete c.custom; state.tplDraft = c; renderFields(); render(); };
   pick.querySelector('[data-a=new]').onclick = () => { state.tplDraft = {id:'u_'+Date.now(), isNew:true, name:'قالب جديد', category:'قوالبي', to:'', title:'', subject:'الموضوع هنا', salutation:'السلام عليكم ورحمة الله وبركاته،', body:'اكتب نص الخطاب هنا، وضع أي معلومة تتغير بين قوسين مثل {اسم الموظف}.', closing:'ولكم جزيل الشكر والاحترام،', signCompany:'{اسم الشركة}', signDept:'مدير شؤون الموظفين', signName:'أ/ أحمد الناشري', sig:'nashri', showMeta:true}; renderFields(); render(); };
   sub(box, 'بيانات الخطاب');
-  for(const f of TYPES.template.fields){ if(f.type !== 'hidden') box.appendChild(fieldEl(f, d, 'template')); }
+  for(const f of TYPES.template.fields){ if(f.type === 'hidden' || (f.k === 'letterNo' && (tp.showNo === false || tp.showMeta === false))) continue; box.appendChild(fieldEl(f, d, 'template')); }
   const keys = tplKeys(tp); const vals = (d.vals = d.vals || {})[tp.id] = d.vals[tp.id] || {};
-  sub(box, keys.length ? 'عبّ الحقول (المظلل بالأصفر في المعاينة لسه فاضي)' : 'هذا القالب ما فيه حقول متغيرة');
+  sub(box, keys.length ? 'عبّ الحقول (الفاضي يظهر مظللاً في المعاينة)' : 'هذا القالب ما فيه حقول متغيرة');
   keys.forEach((k, i) => box.appendChild(fieldEl({k, label:k, type:'text', full: k.length > 14}, vals, 'tv_'+i)));
   sub(box, 'نقل القوالب بين الأجهزة');
   const io = document.createElement('div'); io.className = 'f full upload';
@@ -967,7 +974,13 @@ function renderTplEditor(box){
   F('signCompany', 'الجهة في التوقيع', 'text', {full:true});
   F('signDept', 'القسم / المسمى', 'text');
   F('signName', 'اسم الموقّع', 'text');
-  box.appendChild(fieldEl({k:'showMeta', label:'إظهار التاريخ واليوم ورقم الخطاب أعلى الخطاب', type:'check', full:true}, tp, 'te'));
+  F('approveTitle', 'اعتماد في أسفل الوسط (اختياري)، مثل: اعتماد الإدارة', 'text', {full:true});
+  F('approveName', 'اسم المعتمد (اختياري)', 'text', {full:true});
+  box.appendChild(fieldEl({k:'toPos', label:'مكان سطور «إلى»', type:'select', opts:['top','afterSubject'], full:true}, tp, 'te'));
+  { const s = box.querySelector('#f_te_toPos'); s.options[0].text = 'أعلى الخطاب (قبل الموضوع)'; s.options[1].text = 'بعد الموضوع'; s.value = tp.toPos || 'top'; }
+  box.appendChild(fieldEl({k:'showMeta', label:'إظهار التاريخ واليوم أعلى الخطاب', type:'check', full:true}, tp, 'te'));
+  if(tp.showNo === undefined) tp.showNo = true;
+  box.appendChild(fieldEl({k:'showNo', label:'إظهار رقم الخطاب', type:'check', full:true}, tp, 'te'));
   const bar = document.createElement('div'); bar.className = 'f full tpl-bar';
   bar.innerHTML = '<button class="btn primary sm" type="button" data-a="save">حفظ القالب</button>' + (tp.isNew ? '' : '<button class="btn sm" type="button" data-a="saveNew">حفظ كقالب جديد</button>') +
     (isBuiltin && tplOver[tp.id] ? '<button class="btn sm" type="button" data-a="restore">إرجاع النص الأصلي</button>' : '') +
