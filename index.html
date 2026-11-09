@@ -251,6 +251,7 @@ dialog .df{padding:12px 16px;border-top:1px solid var(--line);display:flex;gap:8
         <div class="f full toggles">
           <label class="tg"><span>الختم<span class="st" id="stStamp"></span></span><input type="checkbox" id="showStamp"><span class="sw" aria-hidden="true"></span></label>
           <label class="tg"><span>التوقيع<span class="st" id="stSig"></span></span><input type="checkbox" id="showSig"><span class="sw" aria-hidden="true"></span></label>
+          <label class="tg" id="tgCo" style="grid-column:1/-1"><span>اسم الشركة فوق التوقيع<span class="st" id="stCo"></span></span><input type="checkbox" id="showCo"><span class="sw" aria-hidden="true"></span></label>
         </div>
         <div class="f"><label for="selStamp">أي ختم</label><select id="selStamp"></select></div>
         <div class="f"><label for="selSig">أي توقيع</label><select id="selSig"></select></div>
@@ -633,6 +634,7 @@ function metaBlock(d){
 function signBlock(lines){
   const lk = L(); const co = coById(state.company);
   const al = lk.align || 'left';
+  if(lk.hideSignCo) lines = {...lines, html: lines.html.replace(/<div class="sl-co">[\s\S]*?<\/div>/, '')};
   let stampSrc = null;
   if(lk.hideStamp) stampSrc = null;
   else if(lk.stamp === 'company') stampSrc = co.stamp;
@@ -662,7 +664,7 @@ function buildBlocks(){
     if(d.salutation) b.push('<p class="bold">'+esc(d.salutation)+'</p>');
     b.push(...parseBody(d.body));
     if(d.closing) b.push('<p class="closing">'+esc(d.closing)+'</p>');
-    b.push(signBlock({html:'<div>'+esc(d.signCompany)+'</div><div class="sl2">'+esc(d.signDept)+'</div><div class="sl2">'+esc(d.signName)+'</div>'}));
+    b.push(signBlock({html:'<div class="sl-co">'+esc(d.signCompany)+'</div><div class="sl2">'+esc(d.signDept)+'</div><div class="sl2">'+esc(d.signName)+'</div>'}));
   }
   if(t === 'license'){
     b.push(metaBlock(d));
@@ -676,7 +678,7 @@ function buildBlocks(){
     if(d.extra) b.push(...parseBody(d.extra));
     b.push('<p class="para">وعليه، نأمل من سعادتكم التكرم بالموافقة على طلبنا، واستكمال الإجراءات اللازمة لإتمام عملية التحويل في أقرب وقت ممكن، شاكرين لكم حسن تعاونكم واهتمامكم، ومتطلعين إلى موافقتكم الكريمة.</p>');
     if(d.closing) b.push('<p class="closing">'+esc(d.closing)+'</p>');
-    b.push(signBlock({html:'<div>'+esc(d.signCompany)+'</div><div class="sl2">'+esc(d.signDept)+'</div><div class="sl2">'+esc(d.signName)+'</div>'}));
+    b.push(signBlock({html:'<div class="sl-co">'+esc(d.signCompany)+'</div><div class="sl2">'+esc(d.signDept)+'</div><div class="sl2">'+esc(d.signName)+'</div>'}));
   }
   if(t === 'template'){
     const tp = curTpl(); const vals = (d.vals = d.vals || {})[tp.id] || {}; const auto = autoVals(d);
@@ -689,7 +691,7 @@ function buildBlocks(){
     if(tp.salutation) b.push('<p class="bold">'+F(tp.salutation)+'</p>');
     b.push(...parseBody(fillTpl(tp.body, vals, auto)).map(markPh));
     if(tp.closing) b.push('<p class="closing">'+F(tp.closing)+'</p>');
-    b.push(signBlock({html:'<div>'+F(tp.signCompany)+'</div><div class="sl2">'+F(tp.signDept)+'</div><div class="sl2">'+F(tp.signName)+'</div>'}));
+    b.push(signBlock({html:'<div class="sl-co">'+F(tp.signCompany)+'</div><div class="sl2">'+F(tp.signDept)+'</div><div class="sl2">'+F(tp.signName)+'</div>'}));
   }
   if(t === 'clearance'){
     const dt = fmtDate(d.date);
@@ -994,6 +996,8 @@ function renderLookControls(){
   ss.disabled = !!lk.hideStamp; sg.disabled = !!lk.hideSig; $('#stampSize').disabled = !!lk.hideStamp;
   $('#stStamp').textContent = lk.hideStamp ? 'محذوف من الخطاب' : 'ظاهر في الخطاب';
   $('#stSig').textContent = lk.hideSig ? 'محذوف من الخطاب' : 'ظاهر في الخطاب';
+  $('#showCo').checked = !lk.hideSignCo; $('#stCo').textContent = lk.hideSignCo ? 'محذوف من الخطاب' : 'ظاهر في الخطاب';
+  $('#tgCo').hidden = state.type === 'clearance';
   $('#selAlign').value = lk.align || 'left';
   $('#stampSize').value = lk.stampSize || 34; $('#stampSizeO').textContent = (lk.stampSize||34)+' مم';
   $('#selFont').value = state.font; $('#fs').value = state.fs; $('#fsO').textContent = state.fs+'pt';
@@ -1002,6 +1006,7 @@ function renderLookControls(){
 }
 $('#autofit').onchange = e => { state.autofit = e.target.checked; render(); };
 $('#showStamp').onchange = e => { L().hideStamp = !e.target.checked; renderLookControls(); render(); toast(e.target.checked ? 'الختم ظاهر' : 'تم حذف الختم من الخطاب'); };
+$('#showCo').onchange = e => { L().hideSignCo = !e.target.checked; renderLookControls(); render(); toast(e.target.checked ? 'اسم الشركة ظاهر فوق التوقيع' : 'تم حذف اسم الشركة من التوقيع'); };
 $('#showSig').onchange = e => { L().hideSig = !e.target.checked; renderLookControls(); render(); toast(e.target.checked ? 'التوقيع ظاهر' : 'تم حذف التوقيع من الخطاب'); };
 $('#selStamp').onchange = e => { L().stamp = e.target.value; render(); };
 $('#selSig').onchange = e => { L().sig = e.target.value; render(); };
