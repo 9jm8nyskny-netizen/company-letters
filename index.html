@@ -103,7 +103,7 @@ button,input,select,textarea{font:inherit;color:inherit}
 .page .pno{position:absolute;left:0;right:0;text-align:center;font-size:9pt;color:#555;font-family:var(--lf)}
 
 /* ---------- letter typography ---------- */
-.content{position:absolute;left:20mm;right:20mm;overflow:hidden;display:flex;flex-direction:column;gap:3.2mm;
+.content{position:absolute;left:20mm;right:20mm;overflow:hidden;display:flex;flex-direction:column;gap:calc(var(--fs) * .7);
   font-family:var(--lf);font-size:var(--fs);line-height:var(--lh);color:#111;direction:rtl;text-align:right}
 .content p{margin:0}
 .para{text-align:justify}
@@ -120,7 +120,7 @@ button,input,select,textarea{font:inherit;color:inherit}
 .bul li{text-align:justify;position:relative;padding-right:5mm}
 .bul li::before{content:"";position:absolute;right:.6mm;top:calc(var(--lh) * .5em - .8mm);width:1.6mm;height:1.6mm;border-radius:50%;background:#111}
 .closing{text-align:center;font-weight:700;margin-top:2mm}
-.sign{position:relative;width:76mm;padding-bottom:17mm;text-align:center;display:flex;flex-direction:column;gap:.6mm;margin-top:4mm;font-weight:700}
+.sign{position:relative;width:76mm;padding-bottom:15mm;text-align:center;display:flex;flex-direction:column;gap:.6mm;margin-top:4mm;font-weight:700}
 .sign.al-left{margin-right:auto}
 .sign.al-right{margin-left:auto}
 .sign.al-center{margin-inline:auto}
@@ -136,6 +136,11 @@ button,input,select,textarea{font:inherit;color:inherit}
 .info th{background:#f1f2f4;font-weight:700;white-space:nowrap;width:1%}
 .h3{font-weight:700;font-size:calc(var(--fs) * 1.05);display:flex;align-items:center;gap:2mm;margin-top:1mm}
 .h3::before{content:"";width:2.2mm;height:2.2mm;background:#111;transform:rotate(45deg);flex:none}
+.ttbl{width:100%;border-collapse:collapse;font-size:calc(var(--fs) * .95)}
+.ttbl th,.ttbl td{border:.3mm solid #8a8f98;padding:1.5mm 2.5mm;text-align:center;vertical-align:middle}
+.ttbl th{background:#f1f2f4;font-weight:700}
+.ttbl td.n,.ttbl th.n{width:9mm}
+.ttbl tr.tot td{background:#f7f7f8;font-weight:700}
 .ded{width:100%;border-collapse:collapse;font-size:calc(var(--fs) * .95)}
 .ded th,.ded td{border:.3mm solid #8a8f98;padding:1.5mm 2.5mm;vertical-align:top}
 .ded th{background:#f1f2f4;font-weight:700;text-align:center}
@@ -144,7 +149,7 @@ button,input,select,textarea{font:inherit;color:inherit}
 .ded tr.tot td{background:#f7f7f8;font-weight:700}
 .ded td.d{text-align:justify}
 
-.ph{background:#fff1a8;color:#7a5200;border-radius:2px;padding:0 1px}
+.ph{background:#eef2fb;color:#5a6a8e;border-bottom:1px dashed #9aa8c8;border-radius:2px;padding:0 3px;font-size:.92em;font-weight:500}
 .exporting .ph{background:none;color:transparent;border-bottom:1px dotted #888}
 .tpl-bar{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
 .chips{display:flex;flex-wrap:wrap;gap:6px}
@@ -517,7 +522,7 @@ const BUILTIN_TPLS = [
    body:'إشارة إلى خطاب الاستقالة المقدم منكم بتاريخ {تاريخ تقديم الاستقالة}، نفيدكم بقبول استقالتكم، على أن يكون آخر يوم عمل لكم هو {آخر يوم عمل}، وذلك بعد انتهاء فترة الإشعار المنصوص عليها في عقد العمل.\nوعليكم تسليم جميع ما بعهدتكم من أدوات وممتلكات الشركة، واستكمال إجراءات إخلاء الطرف، ليتم صرف مستحقاتكم النظامية وفقاً لنظام العمل.\nونشكركم على ما قدمتموه من جهود خلال فترة عملكم معنا، متمنين لكم التوفيق في مسيرتكم القادمة.',
    closing:'وتفضلوا بقبول فائق الاحترام،'},
   {...HR_SIGN, id:'traffic-fines', name:'طلب سداد مخالفات مرورية', category:'طلبات داخلية', to:'إلى / الإدارة المالية   المحترمين\nإلى / الإدارة التنفيذية   المحترمين', title:'', subject:'طلب اعتماد سداد مخالفات مرورية',
-   body:'نرفع لكم هذا الطلب بخصوص الموظف / **{اسم الموظف}**، هوية / إقامة رقم ({رقم الهوية})، والذي كان يعمل لدينا بوظيفة سائق باص خلال الفترة من {تاريخ البداية} إلى {تاريخ النهاية}، وقد صدرت بحقه خلال تلك الفترة مخالفتان مروريتان، وتفاصيلهما كالتالي:\n- المخالفة الأولى: {تفاصيل المخالفة الأولى}، بمبلغ ({مبلغ المخالفة الأولى}) ريال.\n- المخالفة الثانية: {تفاصيل المخالفة الثانية}، بمبلغ ({مبلغ المخالفة الثانية}) ريال.\n- الإجمالي: ({إجمالي المخالفات}) ريال.\nونظراً لأن الموظف كان يباشر عمله قبل حصوله على رخصة القيادة بسبب انتهاء إقامته، فإن هذه المخالفات تعود لظروف عمله لدى المنشأة.\nوعليه، نأمل التكرم بالموافقة على سداد المخالفات المذكورة وتحمّلها من قبل المنشأة.',
+   body:'نرفع لسعادتكم طلب اعتماد سداد مخالفات مرورية صدرت بحق الموظف الموضحة بياناته أدناه، خلال فترة عمله لدى المنشأة.\n## بيانات الموظف\n| اسم الموظف | رقم الهوية / الإقامة | الوظيفة | فترة العمل |\n| {اسم الموظف} | {رقم الهوية} | سائق باص | من {تاريخ البداية} إلى {تاريخ النهاية} |\n## تفاصيل المخالفات\n| م | نوع المخالفة | تاريخ المخالفة | المبلغ (ريال) |\n| 1 | {المخالفة الأولى} | {تاريخ المخالفة الأولى} | {مبلغ المخالفة الأولى} |\n| 2 | {المخالفة الثانية} | {تاريخ المخالفة الثانية} | {مبلغ المخالفة الثانية} |\n|  | الإجمالي |  | =المجموع |\n## مبررات الطلب\nكان الموظف يباشر مهام قيادة الباص قبل حصوله على رخصة القيادة، وذلك لتعذّر استخراجها بسبب انتهاء إقامته، وعليه فإن هذه المخالفات ناتجة عن ظروف العمل لدى المنشأة.\nلذا نأمل من سعادتكم التكرم بالموافقة على سداد المخالفات الموضحة أعلاه وتحمّلها من قبل المنشأة.',
    closing:'شاكرين لكم حسن تعاونكم،'},
   {...HR_SIGN, id:'authorization', name:'خطاب تفويض', category:'خطابات للجهات', to:'سعادة / {الجهة الموجه لها}   المحترمين', title:'', subject:'تفويض',
    body:'تفوّض {اسم الشركة} السيد / **{اسم المفوض}**، {الجنسية} الجنسية، بموجب هوية / إقامة رقم ({رقم الهوية})، بمراجعتكم والقيام بما يلي نيابة عنها:\n- {المهمة المفوض بها}\nويُعد هذا التفويض سارياً حتى تاريخ {تاريخ انتهاء التفويض}، أو حتى إلغائه كتابياً من قبلنا.',
@@ -539,7 +544,7 @@ function autoVals(d){ const co = coById(state.company); const dt = fmtDate(d.dat
 function fillTpl(text, vals, auto){
   return String(text||'').replace(/\{([^{}\n]+)\}/g, (m, k) => { k = k.trim(); if(k in auto) return auto[k]; const v = (vals[k]||'').trim(); return v ? v : '\u0001'+k+'\u0002'; });
 }
-const markPh = html => html.replace(/\u0001(.*?)\u0002/g, '<span class="ph">{$1}</span>');
+const markPh = html => html.replace(/\u0001(.*?)\u0002/g, '<span class="ph">$1</span>');
 function saveTplStores(){ const a = persist('overrides'), b = persist('templates'); return a && b; }
 
 function counters(){ return cloud.on ? {...cloud.counters} : store.get('counters', {}); }
@@ -576,17 +581,43 @@ const $ = s => document.querySelector(s);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const inline = s => esc(s).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>');
 function toast(msg){ const t = $('#toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toast._t); toast._t = setTimeout(()=>t.classList.remove('show'), 2600); }
+function fmtNum(n){ return Number.isInteger(n) ? n.toLocaleString('en-US') : n.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2}); }
+function cellNum(raw){ const s = String(raw).replace(/\u0001.*?\u0002/g, '').replace(/[^\d.]/g, ''); return /\d/.test(s) ? parseFloat(s) : null; }
+function tableHtml(rows){
+  const cols = Math.max(...rows.map(r => r.length));
+  const narrow = c => /^(م|#|ت|رقم)$/.test((rows[0][c]||'').trim());
+  const head = '<tr>'+rows[0].map((c, i) => '<th'+(narrow(i) ? ' class="n"' : '')+'>'+inline(c)+'</th>').join('')+'</tr>';
+  const body = rows.slice(1).map((r, ri) => {
+    const isTot = r.some(c => c.trim() === '=المجموع');
+    const cells = [];
+    for(let i = 0; i < cols; i++){
+      let c = (r[i] ?? '').trim();
+      if(c === '=المجموع'){ let s = 0, any = false; rows.slice(1, ri+1).forEach(rr => { const n = cellNum(rr[i] ?? ''); if(n !== null){ s += n; any = true; } }); c = any ? fmtNum(s) : ''; }
+      cells.push('<td'+(narrow(i) ? ' class="n"' : '')+'>'+inline(c)+'</td>');
+    }
+    return '<tr'+(isTot ? ' class="tot"' : '')+'>'+cells.join('')+'</tr>';
+  }).join('');
+  return '<table class="ttbl">'+head+body+'</table>';
+}
 function parseBody(text){
-  const out = []; let list = null;
+  const out = []; let list = null, table = null;
   for(const raw of String(text || '').split('\n')){
     const l = raw.trim();
-    if(!l){ list = null; continue; }
+    if(!l){ list = null; table = null; continue; }
+    if(l.startsWith('|')){
+      list = null;
+      if(!table){ table = []; out.push({table}); }
+      table.push(l.replace(/^\|/, '').replace(/\|$/, '').split('|'));
+      continue;
+    }
+    table = null;
+    if(l.startsWith('## ')){ list = null; out.push('<div class="h3">'+inline(l.slice(3))+'</div>'); continue; }
     if(/^[-•*]\s+/.test(l) || /^[-•]/.test(l)){
       if(!list){ list = []; out.push(list); }
       list.push(inline(l.replace(/^[-•*]\s*/, '')));
     } else { list = null; out.push('<p class="para">'+inline(l)+'</p>'); }
   }
-  return out.map(b => typeof b === 'string' ? b : '<ul class="bul">'+b.map(x=>'<li>'+x+'</li>').join('')+'</ul>');
+  return out.map(b => typeof b === 'string' ? b : b.table ? tableHtml(b.table) : '<ul class="bul">'+b.map(x=>'<li>'+x+'</li>').join('')+'</ul>');
 }
 const money = v => { const n = parseFloat(String(v).replace(/[^\d.]/g,'')); return isNaN(n) ? '' : n.toFixed(2); };
 
@@ -704,6 +735,11 @@ function render(){
       n = layout(fs, lh);
     }
     if(n > 1){ fs = state.fs; lh = state.lh; n = layout(fs, lh); }
+    else {
+      // use any space left over: open the line spacing back up while it still fits on one page
+      while(lh + 0.1 <= state.lh + 1e-9){ if(layout(fs, +(lh + 0.1).toFixed(1)) > 1) break; lh = +(lh + 0.1).toFixed(1); }
+      n = layout(fs, lh);
+    }
   }
   const co = coById(state.company);
   const shrunk = fs !== state.fs || lh !== state.lh;
@@ -723,7 +759,11 @@ function layout(fs, lh){
     let cur = pages[pages.length-1].content;
     cur.appendChild(el);
     if(cur.scrollHeight > cur.clientHeight + 1 && cur.children.length > 1){
-      cur.removeChild(el); const np = newPage(co); pages.push(np); np.content.appendChild(el);
+      cur.removeChild(el); const np = newPage(co); pages.push(np);
+      // keep a subheading together with the block that follows it
+      const prev = cur.lastElementChild;
+      if(prev && prev.classList.contains('h3') && cur.children.length > 1) np.content.appendChild(prev);
+      np.content.appendChild(el);
     }
   }
   if(pages.length > 1) pages.forEach((p,i)=>{ const n = document.createElement('div'); n.className='pno'; n.style.bottom = (co.bottom-7)+'mm'; n.textContent = 'صفحة '+(i+1)+' من '+pages.length; p.page.appendChild(n); });
@@ -877,7 +917,7 @@ function renderTplEditor(box){
   const tp = state.tplDraft;
   const isBuiltin = BUILTIN_TPLS.some(b => b.id === tp.id);
   const head = document.createElement('div'); head.className = 'edit-head';
-  head.innerHTML = '<b>وضع تعديل القالب</b><br>التعديل يظهر مباشرة في المعاينة. ضع أي معلومة تتغير بين قوسين مثل <b>{اسم الموظف}</b> وتصير حقلاً تعبّيه. ابدأ السطر بـ - ليصير نقطة، وضع النص بين **نجمتين** ليصير عريضاً.';
+  head.innerHTML = '<b>وضع تعديل القالب</b><br>التعديل يظهر مباشرة في المعاينة. ضع أي معلومة تتغير بين قوسين مثل <b>{اسم الموظف}</b> وتصير حقلاً تعبّيه. ابدأ السطر بـ - ليصير نقطة، وبـ ## ليصير عنواناً فرعياً، وضع النص بين **نجمتين** ليصير عريضاً. للجدول اكتب كل صف في سطر يبدأ بـ | وافصل الخانات بـ | (أول صف عناوين)، واكتب =المجموع في خانة ليجمع العمود تلقائياً.';
   box.appendChild(head);
   let lastEl = null;
   const live = () => { renderSoon(); drawChips(); };
