@@ -122,7 +122,7 @@ button,input,select,textarea{font:inherit;color:inherit}
 .closing{text-align:center;font-weight:700;margin-top:2mm}
 .sign{position:relative;width:76mm;padding-bottom:10mm;text-align:center;display:flex;flex-direction:column;gap:.6mm;margin-top:2mm;font-weight:700}
 .stage.light .content *{font-weight:400!important}
-.stage.light .content .subject,.stage.light .content .subject *,.stage.light .content .doc-title,.stage.light .content .doc-title *,.stage.light .content .meta tr:first-child,.stage.light .content .meta tr:first-child *,.stage.light .content .h3{font-weight:700!important}
+.stage.light .content .subject,.stage.light .content .subject *,.stage.light .content .doc-title,.stage.light .content .doc-title *,.stage.light .content .meta,.stage.light .content .meta *,.stage.light .content .h3{font-weight:700!important}
 .approve{align-self:center;text-align:center;font-weight:700;display:flex;flex-direction:column;gap:.8mm;margin-top:0;min-width:70mm}
 .approve .sl2{font-weight:600}
 .approve .dots{font-weight:400;color:#333;margin-top:2.5mm;line-height:1}
@@ -984,7 +984,7 @@ function renderTplEditor(box){
   box.appendChild(fieldEl({k:'showMeta', label:'إظهار التاريخ واليوم أعلى الخطاب', type:'check', full:true}, tp, 'te'));
   if(tp.showNo === undefined) tp.showNo = true;
   box.appendChild(fieldEl({k:'showNo', label:'إظهار رقم الخطاب', type:'check', full:true}, tp, 'te'));
-  box.appendChild(fieldEl({k:'light', label:'خط عادي في كل الخطاب (العريض للموضوع والتاريخ والعناوين الفرعية فقط)', type:'check', full:true}, tp, 'te'));
+  box.appendChild(fieldEl({k:'light', label:'خط عادي في كل الخطاب (العريض للموضوع والتاريخ واليوم والعناوين الفرعية فقط)', type:'check', full:true}, tp, 'te'));
   const bar = document.createElement('div'); bar.className = 'f full tpl-bar';
   bar.innerHTML = '<button class="btn primary sm" type="button" data-a="save">حفظ القالب</button>' + (tp.isNew ? '' : '<button class="btn sm" type="button" data-a="saveNew">حفظ كقالب جديد</button>') +
     (isBuiltin && tplOver[tp.id] ? '<button class="btn sm" type="button" data-a="restore">إرجاع النص الأصلي</button>' : '') +
