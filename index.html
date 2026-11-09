@@ -125,6 +125,7 @@ button,input,select,textarea{font:inherit;color:inherit}
 .stage.light .content .subject,.stage.light .content .subject *,.stage.light .content .doc-title,.stage.light .content .doc-title *,.stage.light .content .meta,.stage.light .content .meta *,.stage.light .content .h3{font-weight:700!important}
 .approve{align-self:center;text-align:center;font-weight:700;display:flex;flex-direction:column;gap:.8mm;margin-top:0;min-width:70mm}
 .approve .sl2{font-weight:600}
+.empblk{display:flex;flex-direction:column;gap:2.2mm;margin-top:2mm}
 .approve .dots{font-weight:400;color:#333;margin-top:11mm;line-height:1}
 .sign.al-left{margin-right:auto}
 .sign.al-right{margin-left:auto}
@@ -556,6 +557,10 @@ const BUILTIN_TPLS = [
    to:'إلى / إدارة الموارد البشرية والإدارة المالية   المحترمين ،،', title:'', subject:'طلب اعتماد إكرامية شهرية للموظفين',
    body:'نأمل من سعادتكم التكرم بالموافقة على اعتماد إكرامية شهرية تُضاف إلى رواتب الموظفين الموضحة أسماؤهم أدناه، وذلك اعتباراً من راتب شهر {شهر بدء الصرف}.\n## بيانات الموظفين\n| م | اسم الموظف | رقم الهوية | الراتب الحالي (ريال) | الإكرامية الشهرية (ريال) | الراتب بعد الإكرامية (ريال) |\n| =م | {اسم الموظف 1} | {رقم الهوية 1} | {الراتب الحالي 1} | {الإكرامية 1} | =c4+c5 |\n| =م | {اسم الموظف 2} | {رقم الهوية 2} | {الراتب الحالي 2} | {الإكرامية 2} | =c4+c5 |\n| =م | {اسم الموظف 3} | {رقم الهوية 3} | {الراتب الحالي 3} | {الإكرامية 3} | =c4+c5 |\n| =م | {اسم الموظف 4} | {رقم الهوية 4} | {الراتب الحالي 4} | {الإكرامية 4} | =c4+c5 |\n| =م | {اسم الموظف 5} | {رقم الهوية 5} | {الراتب الحالي 5} | {الإكرامية 5} | =c4+c5 |\n| =م | {اسم الموظف 6} | {رقم الهوية 6} | {الراتب الحالي 6} | {الإكرامية 6} | =c4+c5 |\nلذا نأمل التكرم بالموافقة على اعتماد الإكرامية وإدراجها ضمن مسير الرواتب اعتباراً من الشهر الموضح أعلاه.',
    closing:'شاكرين لكم حسن تعاونكم،', approveTitle:'اعتماد الإدارة', approveName:'م/ لبنى الهمداني'},
+  {...HR_SIGN, id:'loan-request', ver:1, name:'طلب سلفة مالية', category:'طلبات الموظفين', showNo:false, light:true, toPos:'afterSubject', noSign:true,
+   to:'إلى / إدارة {اسم الشركة}   المحترمين ،،', title:'', subject:'طلب سلفة مالية', salutation:'تحية طيبة وبعد،',
+   body:'أتقدم إليكم بطلب سلفة مالية بمبلغ وقدره ({مبلغ السلفة}) ريال سعودي، وأتعهد بسداد المبلغ على ({عدد الدفعات}) دفعات شهرية ابتداءً من راتب شهر {شهر بدء السداد}.\nأرجو من الإدارة الموقرة التكرم بالموافقة على طلبي، ولكم جزيل الشكر والتقدير.\nالاسم: {اسم الموظف}\nرقم الهوية / الإقامة: {رقم الهوية}\nرقم الجواز: {رقم الجواز}\nالتوقيع: ........................................',
+   closing:'', approveTitle:'اعتماد الإدارة', approveName:'م/ لبنى الهمداني'},
   {...HR_SIGN, id:'authorization', name:'خطاب تفويض', category:'خطابات للجهات', to:'سعادة / {الجهة الموجه لها}   المحترمين', title:'', subject:'تفويض',
    body:'تفوّض {اسم الشركة} السيد / **{اسم المفوض}**، {الجنسية} الجنسية، بموجب هوية / إقامة رقم ({رقم الهوية})، بمراجعتكم والقيام بما يلي نيابة عنها:\n- {المهمة المفوض بها}\nويُعد هذا التفويض سارياً حتى تاريخ {تاريخ انتهاء التفويض}، أو حتى إلغائه كتابياً من قبلنا.',
    closing:'شاكرين لكم حسن تعاونكم،'},
@@ -756,7 +761,7 @@ function buildBlocks(){
     if(tp.salutation) b.push('<p class="bold">'+F(tp.salutation)+'</p>');
     b.push(...parseBody(fillTpl(tp.body, vals, auto)).map(markPh));
     if(tp.closing) b.push('<p class="closing">'+F(tp.closing)+'</p>');
-    b.push(signBlock({html:'<div class="sl-co">'+F(tp.signCompany)+'</div><div class="sl2 sl-dept">'+F(tp.signDept)+'</div><div class="sl2 sl-name">'+F(tp.signName)+'</div>'}));
+    if(!tp.noSign) b.push(signBlock({html:'<div class="sl-co">'+F(tp.signCompany)+'</div><div class="sl2 sl-dept">'+F(tp.signDept)+'</div><div class="sl2 sl-name">'+F(tp.signName)+'</div>'}));
     if(tp.approveTitle || tp.approveName) b.push('<div class="approve">'+(tp.approveTitle ? '<div>'+F(tp.approveTitle)+'</div>' : '')+(tp.approveName ? '<div class="sl2">'+F(tp.approveName)+'</div>' : '')+'<div class="dots">.............................................................</div></div>');
   }
   if(t === 'clearance'){
@@ -1311,7 +1316,7 @@ function initCloud(){
 }
 
 /* ---------------- new version check ---------------- */
-const BUILD_ID = '20261109174719';
+const BUILD_ID = '20261109181342';
 async function checkForUpdate(){
   if(!/^https?:/.test(location.protocol)) return;
   try{
