@@ -552,6 +552,10 @@ const BUILTIN_TPLS = [
    to:'إلى / إدارة الموارد البشرية والإدارة المالية   المحترمين ،،', title:'', subject:'طلب اعتماد بدل مواصلات شهري',
    body:'نرفع لسعادتكم طلب اعتماد بدل مواصلات شهري للموظف الموضحة بياناته أدناه، وذلك لتغطية تكاليف تنقله من وإلى مقر العمل.\n## بيانات الموظف\n| اسم الموظف | رقم الهوية / الإقامة | الرقم الوظيفي |\n| {اسم الموظف} | {رقم الهوية} | {الرقم الوظيفي} |\n## تفاصيل البدل\n| البيان | التفاصيل |\n| قيمة البدل الشهري | {قيمة البدل} ريال |\n| تاريخ بدء الصرف | {تاريخ بدء الصرف} |\n| طريقة الصرف | ضمن الراتب الشهري |\nلذا نأمل التكرم بالموافقة على اعتماد البدل وإدراجه ضمن مسير الرواتب اعتباراً من التاريخ الموضح أعلاه.',
    closing:'شاكرين لكم حسن تعاونكم،', approveTitle:'اعتماد الإدارة', approveName:'م/ لبنى الهمداني'},
+  {...HR_SIGN, id:'monthly-tip', ver:1, name:'اعتماد إكرامية شهرية', category:'طلبات داخلية', showNo:false, light:true, toPos:'afterSubject', salutation:'',
+   to:'إلى / إدارة الموارد البشرية والإدارة المالية   المحترمين ،،', title:'', subject:'طلب اعتماد إكرامية شهرية للموظفين',
+   body:'نأمل من سعادتكم التكرم بالموافقة على اعتماد إكرامية شهرية تُضاف إلى رواتب الموظفين الموضحة أسماؤهم أدناه، وذلك اعتباراً من راتب شهر {شهر بدء الصرف}.\n## بيانات الموظفين\n| م | اسم الموظف | رقم الهوية | الراتب الحالي (ريال) | الإكرامية الشهرية (ريال) | الراتب بعد الإكرامية (ريال) |\n| =م | {اسم الموظف 1} | {رقم الهوية 1} | {الراتب الحالي 1} | {الإكرامية 1} | =c4+c5 |\n| =م | {اسم الموظف 2} | {رقم الهوية 2} | {الراتب الحالي 2} | {الإكرامية 2} | =c4+c5 |\n| =م | {اسم الموظف 3} | {رقم الهوية 3} | {الراتب الحالي 3} | {الإكرامية 3} | =c4+c5 |\n| =م | {اسم الموظف 4} | {رقم الهوية 4} | {الراتب الحالي 4} | {الإكرامية 4} | =c4+c5 |\n| =م | {اسم الموظف 5} | {رقم الهوية 5} | {الراتب الحالي 5} | {الإكرامية 5} | =c4+c5 |\n| =م | {اسم الموظف 6} | {رقم الهوية 6} | {الراتب الحالي 6} | {الإكرامية 6} | =c4+c5 |\n|  | الإجمالي |  | =المجموع | =المجموع | =المجموع |\nلذا نأمل التكرم بالموافقة على اعتماد الإكرامية وإدراجها ضمن مسير الرواتب اعتباراً من الشهر الموضح أعلاه.',
+   closing:'شاكرين لكم حسن تعاونكم،', approveTitle:'اعتماد الإدارة', approveName:'م/ لبنى الهمداني'},
   {...HR_SIGN, id:'authorization', name:'خطاب تفويض', category:'خطابات للجهات', to:'سعادة / {الجهة الموجه لها}   المحترمين', title:'', subject:'تفويض',
    body:'تفوّض {اسم الشركة} السيد / **{اسم المفوض}**، {الجنسية} الجنسية، بموجب هوية / إقامة رقم ({رقم الهوية})، بمراجعتكم والقيام بما يلي نيابة عنها:\n- {المهمة المفوض بها}\nويُعد هذا التفويض سارياً حتى تاريخ {تاريخ انتهاء التفويض}، أو حتى إلغائه كتابياً من قبلنا.',
    closing:'شاكرين لكم حسن تعاونكم،'},
@@ -579,9 +583,9 @@ function tplKeys(tp){
 function autoVals(d){ const co = coById(state.company); const dt = fmtDate(d.date);
   return {'اسم الشركة':co.name, 'التاريخ':dt.g, 'التاريخ الهجري':dt.h, 'اليوم':dt.day, 'رقم الخطاب':d.letterNo||''}; }
 function fillTpl(text, vals, auto){
-  return String(text||'').replace(/\{([^{}\n]+)\}/g, (m, k) => { k = k.trim(); if(k in auto) return auto[k]; const v = (vals[k]||'').trim(); return v ? v : '\u0001'+k+'\u0002'; });
+  return String(text||'').replace(/\{([^{}\n]+)\}/g, (m, k) => { k = k.trim(); if(k in auto) return auto[k]; const v = (vals[k]||'').trim(); return v ? '\u0003'+v+'\u0004' : '\u0001'+k+'\u0002'; });
 }
-const markPh = html => html.replace(/\u0001(.*?)\u0002/g, '<span class="ph">$1</span>');
+const markPh = html => html.replace(/\u0001(.*?)\u0002/g, '<span class="ph">$1</span>').replace(/[\u0003\u0004]/g, '');
 function saveTplStores(){ const a = persist('overrides'), b = persist('templates'); return a && b; }
 
 function counters(){ return cloud.on ? {...cloud.counters} : store.get('counters', {}); }
@@ -619,21 +623,41 @@ const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt
 const inline = s => esc(s).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>');
 function toast(msg){ const t = $('#toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toast._t); toast._t = setTimeout(()=>t.classList.remove('show'), 2600); }
 function fmtNum(n){ return Number.isInteger(n) ? n.toLocaleString('en-US') : n.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2}); }
-function cellNum(raw){ const s = String(raw).replace(/\u0001.*?\u0002/g, '').replace(/[^\d.]/g, ''); return /\d/.test(s) ? parseFloat(s) : null; }
+function cellNum(raw){ const s = String(raw).replace(/\u0001.*?\u0002/g, '').replace(/[\u0003\u0004]/g, '').replace(/[^\d.]/g, ''); return /\d/.test(s) ? parseFloat(s) : null; }
+// table cells may hold: =م (row number), =c4+c5 (add/subtract other columns of the row), =المجموع (column total)
+// rows whose fields are all left empty are skipped, except the first data row
 function tableHtml(rows){
   const cols = Math.max(...rows.map(r => r.length));
   const narrow = c => /^(م|#|ت|رقم)$/.test((rows[0][c]||'').trim());
   const head = '<tr>'+rows[0].map((c, i) => '<th'+(narrow(i) ? ' class="n"' : '')+'>'+inline(c)+'</th>').join('')+'</tr>';
-  const body = rows.slice(1).map((r, ri) => {
+  const kept = []; let dataIdx = 0, num = 0, body = '';
+  const totRow = rows.slice(1).find(r => r.some(c => c.trim() === '=المجموع')) || [];
+  const moneyCol = i => (totRow[i] || '').trim() === '=المجموع';
+  rows.slice(1).forEach(r => {
+    const joined = r.join('|');
+    const hasField = /[\u0001\u0003]/.test(joined), anyFilled = /\u0003/.test(joined);
     const isTot = r.some(c => c.trim() === '=المجموع');
-    const cells = [];
+    if(!isTot){ if(hasField && !anyFilled && dataIdx > 0){ dataIdx++; return; } dataIdx++; }
+    const vals = [], cells = [];
     for(let i = 0; i < cols; i++){
-      let c = (r[i] ?? '').trim();
-      if(c === '=المجموع'){ let s = 0, any = false; rows.slice(1, ri+1).forEach(rr => { const n = cellNum(rr[i] ?? ''); if(n !== null){ s += n; any = true; } }); c = any ? fmtNum(s) : ''; }
+      let c = (r[i] ?? '').trim(), v = null;
+      if(c === '=م'){ num++; c = String(num); }
+      else if(c === '=المجموع'){ let s = 0, any = false; kept.forEach(kv => { if(kv[i] !== null && kv[i] !== undefined){ s += kv[i]; any = true; } }); c = any ? fmtNum(s) : ''; v = any ? s : null; }
+      else if(/^=\s*[cC]\d+(\s*[+\-]\s*[cC]\d+)*\s*$/.test(c)){
+        let s = 0, any = false;
+        c.slice(1).replace(/\s+/g, '').match(/[+\-]?[cC]\d+/g).forEach(term => { const neg = term[0] === '-'; const idx = parseInt(term.replace(/[^\d]/g, ''), 10) - 1; const n = cellNum(r[idx] ?? ''); if(n !== null){ s += neg ? -n : n; any = true; } });
+        c = any ? fmtNum(s) : ''; v = any ? s : null;
+      } else {
+        v = (i > 0 && !narrow(i)) ? cellNum(c) : null;
+        // amounts in a totalled column are written the same way as the computed ones (2,000)
+        if(moneyCol(i) && v !== null && /^[\u0003]?[\d,.\s]+[\u0004]?$/.test(c)) c = '\u0003' + fmtNum(v) + '\u0004';
+      }
+      vals.push(v);
       cells.push('<td'+(narrow(i) ? ' class="n"' : '')+'>'+inline(c)+'</td>');
     }
-    return '<tr'+(isTot ? ' class="tot"' : '')+'>'+cells.join('')+'</tr>';
-  }).join('');
+    if(!isTot) kept.push(vals);
+    body += '<tr'+(isTot ? ' class="tot"' : '')+'>'+cells.join('')+'</tr>';
+  });
   return '<table class="ttbl">'+head+body+'</table>';
 }
 function parseBody(text){
@@ -1287,7 +1311,7 @@ function initCloud(){
 }
 
 /* ---------------- new version check ---------------- */
-const BUILD_ID = '20261109173224';
+const BUILD_ID = '20261109174343';
 async function checkForUpdate(){
   if(!/^https?:/.test(location.protocol)) return;
   try{
