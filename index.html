@@ -121,6 +121,8 @@ button,input,select,textarea{font:inherit;color:inherit}
 .bul li::before{content:"";position:absolute;right:.6mm;top:calc(var(--lh) * .5em - .8mm);width:1.6mm;height:1.6mm;border-radius:50%;background:#111}
 .closing{text-align:center;font-weight:700;margin-top:2mm}
 .sign{position:relative;width:76mm;padding-bottom:10mm;text-align:center;display:flex;flex-direction:column;gap:.6mm;margin-top:2mm;font-weight:700}
+.stage.light .content *{font-weight:400!important}
+.stage.light .content .subject,.stage.light .content .subject *,.stage.light .content .doc-title,.stage.light .content .doc-title *,.stage.light .content .meta tr:first-child,.stage.light .content .meta tr:first-child *{font-weight:700!important}
 .approve{align-self:center;text-align:center;font-weight:700;display:flex;flex-direction:column;gap:.8mm;margin-top:0;min-width:70mm}
 .approve .sl2{font-weight:600}
 .approve .dots{font-weight:400;color:#333;margin-top:2.5mm;line-height:1}
@@ -536,7 +538,7 @@ const BUILTIN_TPLS = [
   {...HR_SIGN, id:'resign', name:'قبول استقالة', category:'شؤون الموظفين', to:'السيد / {اسم الموظف}\nالرقم الوظيفي: {الرقم الوظيفي}', title:'', subject:'قبول استقالة',
    body:'إشارة إلى خطاب الاستقالة المقدم منكم بتاريخ {تاريخ تقديم الاستقالة}، نفيدكم بقبول استقالتكم، على أن يكون آخر يوم عمل لكم هو {آخر يوم عمل}، وذلك بعد انتهاء فترة الإشعار المنصوص عليها في عقد العمل.\nوعليكم تسليم جميع ما بعهدتكم من أدوات وممتلكات الشركة، واستكمال إجراءات إخلاء الطرف، ليتم صرف مستحقاتكم النظامية وفقاً لنظام العمل.\nونشكركم على ما قدمتموه من جهود خلال فترة عملكم معنا، متمنين لكم التوفيق في مسيرتكم القادمة.',
    closing:'وتفضلوا بقبول فائق الاحترام،'},
-  {...HR_SIGN, id:'traffic-fines', name:'طلب سداد مخالفات مرورية', category:'طلبات داخلية', showNo:false, toPos:'afterSubject', salutation:'',
+  {...HR_SIGN, id:'traffic-fines', name:'طلب سداد مخالفات مرورية', category:'طلبات داخلية', showNo:false, light:true, toPos:'afterSubject', salutation:'',
    to:'إلى / الإدارة المالية   المحترمين\nإلى / الإدارة التنفيذية   المحترمين', title:'', subject:'طلب اعتماد سداد مخالفات مرورية',
    body:'نرفع لسعادتكم طلب اعتماد سداد مخالفات مرورية صدرت بحق الموظف الموضحة بياناته أدناه، خلال فترة عمله لدى المنشأة.\n## مبررات الطلب\nكان الموظف يباشر مهام قيادة الباص قبل حصوله على رخصة القيادة، وذلك لتعذّر استخراجها بسبب انتهاء إقامته، وعليه فإن هذه المخالفات ناتجة عن ظروف العمل لدى المنشأة.\n## بيانات الموظف\n| اسم الموظف | رقم الهوية / الإقامة | الوظيفة | فترة العمل |\n| {اسم الموظف} | {رقم الهوية} | سائق باص | من {تاريخ البداية} إلى {تاريخ النهاية} |\n## تفاصيل المخالفات\n| م | نوع المخالفة | تاريخ المخالفة | المبلغ (ريال) |\n| 1 | {المخالفة الأولى} | {تاريخ المخالفة الأولى} | {مبلغ المخالفة الأولى} |\n| 2 | {المخالفة الثانية} | {تاريخ المخالفة الثانية} | {مبلغ المخالفة الثانية} |\n|  | الإجمالي |  | =المجموع |\nلذا نأمل من سعادتكم التكرم بالموافقة على سداد المخالفات الموضحة أعلاه وتحمّلها من قبل المنشأة.',
    closing:'شاكرين لكم حسن تعاونكم،', approveTitle:'اعتماد الإدارة', approveName:'م/ لبنى الهمداني'},
@@ -772,6 +774,7 @@ function render(){
 }
 function layout(fs, lh){
   const co = coById(state.company);
+  stage.classList.toggle('light', state.type === 'template' && !!curTpl().light);
   stage.style.setProperty('--lf', state.font);
   stage.style.setProperty('--fs', fs+'pt');
   stage.style.setProperty('--lh', lh);
@@ -981,6 +984,7 @@ function renderTplEditor(box){
   box.appendChild(fieldEl({k:'showMeta', label:'إظهار التاريخ واليوم أعلى الخطاب', type:'check', full:true}, tp, 'te'));
   if(tp.showNo === undefined) tp.showNo = true;
   box.appendChild(fieldEl({k:'showNo', label:'إظهار رقم الخطاب', type:'check', full:true}, tp, 'te'));
+  box.appendChild(fieldEl({k:'light', label:'خط عادي في كل الخطاب (العريض للموضوع والتاريخ فقط)', type:'check', full:true}, tp, 'te'));
   const bar = document.createElement('div'); bar.className = 'f full tpl-bar';
   bar.innerHTML = '<button class="btn primary sm" type="button" data-a="save">حفظ القالب</button>' + (tp.isNew ? '' : '<button class="btn sm" type="button" data-a="saveNew">حفظ كقالب جديد</button>') +
     (isBuiltin && tplOver[tp.id] ? '<button class="btn sm" type="button" data-a="restore">إرجاع النص الأصلي</button>' : '') +
