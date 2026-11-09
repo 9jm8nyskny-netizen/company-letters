@@ -125,7 +125,7 @@ button,input,select,textarea{font:inherit;color:inherit}
 .stage.light .content .subject,.stage.light .content .subject *,.stage.light .content .doc-title,.stage.light .content .doc-title *,.stage.light .content .meta,.stage.light .content .meta *,.stage.light .content .h3{font-weight:700!important}
 .approve{align-self:center;text-align:center;font-weight:700;display:flex;flex-direction:column;gap:.8mm;margin-top:0;min-width:70mm}
 .approve .sl2{font-weight:600}
-.approve .dots{font-weight:400;color:#333;margin-top:2.5mm;line-height:1}
+.approve .dots{font-weight:400;color:#333;margin-top:11mm;line-height:1}
 .sign.al-left{margin-right:auto}
 .sign.al-right{margin-left:auto}
 .sign.al-center{margin-inline:auto}
@@ -714,7 +714,7 @@ function buildBlocks(){
     b.push(...parseBody(fillTpl(tp.body, vals, auto)).map(markPh));
     if(tp.closing) b.push('<p class="closing">'+F(tp.closing)+'</p>');
     b.push(signBlock({html:'<div class="sl-co">'+F(tp.signCompany)+'</div><div class="sl2 sl-dept">'+F(tp.signDept)+'</div><div class="sl2 sl-name">'+F(tp.signName)+'</div>'}));
-    if(tp.approveTitle || tp.approveName) b.push('<div class="approve">'+(tp.approveTitle ? '<div>'+F(tp.approveTitle)+'</div>' : '')+(tp.approveName ? '<div class="sl2">'+F(tp.approveName)+'</div>' : '')+'<div class="dots">..............................................</div></div>');
+    if(tp.approveTitle || tp.approveName) b.push('<div class="approve">'+(tp.approveTitle ? '<div>'+F(tp.approveTitle)+'</div>' : '')+(tp.approveName ? '<div class="sl2">'+F(tp.approveName)+'</div>' : '')+'<div class="dots">.............................................................</div></div>');
   }
   if(t === 'clearance'){
     const dt = fmtDate(d.date);
