@@ -146,6 +146,8 @@ button,input,select,textarea{font:inherit;color:inherit}
 .ttbl th,.ttbl td{border:.3mm solid #8a8f98;padding:1.1mm 2.5mm;text-align:center;vertical-align:middle}
 .ttbl th{background:#f1f2f4;font-weight:700}
 .ttbl td.n,.ttbl th.n{width:9mm}
+.ttbl.dense{font-size:calc(var(--fs) * .88);line-height:1.35}
+.ttbl.dense th,.ttbl.dense td{padding:.6mm 2.5mm}
 .ttbl tr.tot td{background:#f7f7f8;font-weight:700}
 .ded{width:100%;border-collapse:collapse;font-size:calc(var(--fs) * .95)}
 .ded th,.ded td{border:.3mm solid #8a8f98;padding:1.5mm 2.5mm;vertical-align:top}
@@ -567,6 +569,10 @@ const BUILTIN_TPLS = [
    body:'نرفع لسعادتكم طلب اعتماد زيادة بدل السكن والمواصلات الشهري للموظف/ـة الموضحة بياناته أدناه، وذلك بإضافة مبلغ ({مبلغ الزيادة}) ريال إلى البدل الحالي، ليصبح إجمالي البدل الشهري وفق التفاصيل التالية:\n## بيانات الموظف\n| اسم الموظف | رقم الهوية / الإقامة | الرقم الوظيفي |\n| {اسم الموظف} | {رقم الهوية} | {الرقم الوظيفي} |\n## تفاصيل البدل\n| البيان | المبلغ الشهري |\n| بدل السكن والمواصلات الحالي | {البدل الحالي} |\n| الزيادة المطلوبة | {مبلغ الزيادة} |\n| إجمالي البدل بعد الزيادة | =المجموع |\nلذا نأمل التكرم بالموافقة على اعتماد الزيادة وإدراج إجمالي البدل ضمن مسير الرواتب اعتباراً من راتب شهر {شهر بدء الصرف}.',
    closing:'شاكرين لكم حسن تعاونكم،', approveTitle:'اعتماد الإدارة', approveName:'م/ لبنى الهمداني',
    defaults:{'اسم الموظف':'منى عبدالله محمد سليمان', 'رقم الهوية':'2391851629', 'الرقم الوظيفي':'1425', 'البدل الحالي':'500', 'مبلغ الزيادة':'300'}},
+  {...HR_SIGN, id:'absence-warning', ver:1, name:'إنذار كتابي بالفصل بسبب الغياب', category:'شؤون الموظفين', showNo:true, light:true, toPos:'afterSubject', salutation:'',
+   to:'السيد / {اسم الموظف}   المحترم\nالرقم الوظيفي: {الرقم الوظيفي}، رقم الهوية / الإقامة: {رقم الهوية}', title:'', subject:'إنذار كتابي بالفصل بسبب الغياب عن العمل',
+   body:'نحيطكم علماً بأنه قد ثبت تغيبكم عن العمل دون سبب مشروع خلال السنة العقدية الحالية، وذلك وفق البيان التالي:\n| م | تاريخ الغياب | الأيام | م | تاريخ الغياب | الأيام |\n| =م | {تاريخ الغياب 1} | {عدد الأيام 1} | =م | {تاريخ الغياب 2} | {عدد الأيام 2} |\n| =م | {تاريخ الغياب 3} | {عدد الأيام 3} | =م | {تاريخ الغياب 4} | {عدد الأيام 4} |\n| =م | {تاريخ الغياب 5} | {عدد الأيام 5} | =م | {تاريخ الغياب 6} | {عدد الأيام 6} |\n| =م | {تاريخ الغياب 7} | {عدد الأيام 7} | =م | {تاريخ الغياب 8} | {عدد الأيام 8} |\n| =م | {تاريخ الغياب 9} | {عدد الأيام 9} | =م | {تاريخ الغياب 10} | {عدد الأيام 10} |\n| =م | {تاريخ الغياب 11} | {عدد الأيام 11} | =م | {تاريخ الغياب 12} | {عدد الأيام 12} |\n| =م | {تاريخ الغياب 13} | {عدد الأيام 13} | =م | {تاريخ الغياب 14} | {عدد الأيام 14} |\n| =م | {تاريخ الغياب 15} | {عدد الأيام 15} | =م | {تاريخ الغياب 16} | {عدد الأيام 16} |\n|  | إجمالي أيام الغياب |  |  |  | =المجموع(c3+c6) |\nواستناداً إلى الفقرة (7) من المادة الثمانين من نظام العمل، فإن تجاوز الغياب دون سبب مشروع الحد المنصوص عليه نظاماً يُجيز لصاحب العمل فسخ العقد دون مكافأة أو إشعار أو تعويض، ويُعد هذا الخطاب إنذاراً كتابياً لكم وفقاً للمادة المذكورة.\nوعليه، نُلزمكم بالانتظام في الحضور، وتقديم ما يثبت أي عذر مشروع لغيابكم خلال ثلاثة أيام عمل من تاريخ استلام هذا الإنذار، علماً بأن تكرار الغياب سيترتب عليه فصلكم من العمل وفقاً للنظام.\n## إقرار الموظف بالاستلام\nأقرّ باستلامي هذا الإنذار والاطلاع على ما ورد فيه.   التوقيع: ..........................   التاريخ: ..................',
+   closing:'', defaults:{'تاريخ الغياب 1':'6 أبريل', 'عدد الأيام 1':'1', 'تاريخ الغياب 2':'13 أبريل', 'عدد الأيام 2':'1', 'تاريخ الغياب 3':'11 يونيو', 'عدد الأيام 3':'1', 'تاريخ الغياب 4':'24 سبتمبر', 'عدد الأيام 4':'1', 'تاريخ الغياب 5':'28 سبتمبر', 'عدد الأيام 5':'1', 'تاريخ الغياب 6':'6 أكتوبر', 'عدد الأيام 6':'1', 'تاريخ الغياب 7':'من 8 إلى 11 أكتوبر', 'عدد الأيام 7':'4', 'تاريخ الغياب 8':'16 أكتوبر', 'عدد الأيام 8':'1', 'تاريخ الغياب 9':'من 18 إلى 20 أكتوبر', 'عدد الأيام 9':'3', 'تاريخ الغياب 10':'من 25 إلى 29 أكتوبر', 'عدد الأيام 10':'5', 'تاريخ الغياب 11':'1 نوفمبر', 'عدد الأيام 11':'1', 'تاريخ الغياب 12':'3 و 4 نوفمبر', 'عدد الأيام 12':'2', 'تاريخ الغياب 13':'9 و 10 نوفمبر', 'عدد الأيام 13':'2'}},
   {...HR_SIGN, id:'loan-request', ver:1, name:'طلب سلفة مالية', category:'طلبات الموظفين', showNo:false, light:true, toPos:'afterSubject', noSign:true,
    to:'إلى / إدارة {اسم الشركة}   المحترمين ،،', title:'', subject:'طلب سلفة مالية', salutation:'تحية طيبة وبعد،',
    body:'أتقدم إليكم بطلب سلفة مالية بمبلغ وقدره ({مبلغ السلفة}) ريال سعودي، وأتعهد بسداد المبلغ على ({عدد الدفعات}) دفعات شهرية ابتداءً من راتب شهر {شهر بدء السداد}.\nأرجو من الإدارة الموقرة التكرم بالموافقة على طلبي، ولكم جزيل الشكر والتقدير.\nالاسم: {اسم الموظف}\nرقم الهوية / الإقامة: {رقم الهوية}\nرقم الجواز: {رقم الجواز}\nالتوقيع: ........................................',
@@ -658,17 +664,25 @@ function tableHtml(rows){
   const narrow = c => /^(م|#|ت|رقم)$/.test((rows[0][c]||'').trim());
   const head = '<tr>'+rows[0].map((c, i) => '<th'+(narrow(i) ? ' class="n"' : '')+'>'+inline(c)+'</th>').join('')+'</tr>';
   const kept = []; let dataIdx = 0, num = 0, body = '';
-  const totRow = rows.slice(1).find(r => r.some(c => c.trim() === '=المجموع')) || [];
+  const totRow = rows.slice(1).find(r => r.some(c => c.trim().startsWith('=المجموع'))) || [];
   const moneyCol = i => (totRow[i] || '').trim() === '=المجموع' || /ريال|الراتب|الإكرامية|المبلغ|البدل/.test(rows[0][i] || '');
   rows.slice(1).forEach(r => {
     const joined = r.join('|');
     const hasField = /[\u0001\u0003]/.test(joined), anyFilled = /\u0003/.test(joined);
-    const isTot = r.some(c => c.trim() === '=المجموع');
+    const isTot = r.some(c => c.trim().startsWith('=المجموع'));
     if(!isTot){ if(hasField && !anyFilled && dataIdx > 0){ dataIdx++; return; } dataIdx++; }
     const vals = [], cells = [];
+    const onlyEmptyField = s => /^\u0001[^\u0002]*\u0002$/.test((s ?? '').trim());
     for(let i = 0; i < cols; i++){
       let c = (r[i] ?? '').trim(), v = null;
-      if(c === '=م'){ num++; c = String(num); }
+      // in a partly filled row, fields left empty print as blank cells (and get no row number)
+      if(anyFilled && onlyEmptyField(c)) c = '';
+      if(c === '=م'){ if(anyFilled && onlyEmptyField(r[i+1])) c = ''; else { num++; c = String(num); } }
+      else if(/^=المجموع\(\s*[cC]\d+(\s*\+\s*[cC]\d+)*\s*\)$/.test(c)){
+        const idxs = c.match(/[cC](\d+)/g).map(x => parseInt(x.slice(1), 10) - 1); let s = 0, any = false;
+        kept.forEach(kv => idxs.forEach(j => { if(kv[j] !== null && kv[j] !== undefined){ s += kv[j]; any = true; } }));
+        c = any ? fmtNum(s) : ''; v = any ? s : null;
+      }
       else if(c === '=المجموع'){ let s = 0, any = false; kept.forEach(kv => { if(kv[i] !== null && kv[i] !== undefined){ s += kv[i]; any = true; } }); c = any ? fmtNum(s) : ''; v = any ? s : null; }
       else if(/^=\s*[cC]\d+(\s*[+\-]\s*[cC]\d+)*\s*$/.test(c)){
         let s = 0, any = false;
@@ -685,7 +699,8 @@ function tableHtml(rows){
     if(!isTot) kept.push(vals);
     body += '<tr'+(isTot ? ' class="tot"' : '')+'>'+cells.join('')+'</tr>';
   });
-  return '<table class="ttbl">'+head+body+'</table>';
+  const nRows = (body.match(/<tr/g) || []).length;
+  return '<table class="ttbl'+(nRows > 8 ? ' dense' : '')+'">'+head+body+'</table>';
 }
 function parseBody(text){
   const out = []; let list = null, table = null;
@@ -1344,7 +1359,7 @@ function initCloud(){
 }
 
 /* ---------------- new version check ---------------- */
-const BUILD_ID = '20261110152553';
+const BUILD_ID = '20261110173141';
 async function checkForUpdate(){
   if(!/^https?:/.test(location.protocol)) return;
   try{
