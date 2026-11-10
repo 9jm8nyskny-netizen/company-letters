@@ -622,6 +622,13 @@ for(const t in TYPES){
   if(!state.look[t]) state.look[t] = defaultLook(t);
 }
 if(!allCos().some(c => c.id === state.company)) state.company = BUILTIN[0].id;
+// every visit starts each letter on today's date (it stays editable; letters opened from the history keep theirs)
+function stampToday(onlyIfOld){
+  const today = todayISO();
+  for(const t in state.data){ const d = state.data[t]; if(!d || !('date' in d)) continue; if(!onlyIfOld || d.date === state.dateDay) d.date = today; }
+  state.dateDay = today;
+}
+stampToday(false);
 
 const D = () => state.data[state.type];
 const L = () => state.look[state.type];
@@ -1327,7 +1334,7 @@ function initCloud(){
 }
 
 /* ---------------- new version check ---------------- */
-const BUILD_ID = '20261110143235';
+const BUILD_ID = '20261110143943';
 async function checkForUpdate(){
   if(!/^https?:/.test(location.protocol)) return;
   try{
@@ -1337,10 +1344,15 @@ async function checkForUpdate(){
   }catch(e){}
 }
 setTimeout(checkForUpdate, 2500); setInterval(checkForUpdate, 5*60*1000);
-document.addEventListener('visibilitychange', () => { if(document.visibilityState === 'visible') checkForUpdate(); });
+document.addEventListener('visibilitychange', () => {
+  if(document.visibilityState !== 'visible') return;
+  checkForUpdate();
+  // the app stayed open past midnight: move letters still on yesterday's date to today
+  if(state.dateDay !== todayISO()){ stampToday(true); renderFields(); render(); }
+});
 
 /* ---------------- boot ---------------- */
-renderCompanies(); renderTypes(); renderFields(); renderLookControls(); render();
+renderCompanies(); renderTypes(); renderFields(); renderLookControls(); renderArchive(); render();
 document.fonts && document.fonts.ready.then(render);
 initCloud();
 if(!FIREBASE_CONFIG && dropStaleOverrides()){ renderFields(); render(); }
