@@ -163,6 +163,13 @@ button,input,select,textarea{font:inherit;color:inherit}
 .ttbl.dense th,.ttbl.dense td{padding:.45mm 2.5mm}
 .ttbl tr.tot td{background:#f1f2f4;font-weight:700}
 .ttbl tr.tot td.lbl{text-align:center}
+.ttbl.vlog,.ttbl.vsum{font-size:calc(var(--fs) * .88);line-height:1.35}
+.ttbl.vlog th,.ttbl.vlog td,.ttbl.vsum th,.ttbl.vsum td{padding:.9mm 2mm}
+.ttbl td.t,.ttbl th.t{text-align:right}
+.ttbl.vlog td.dt,.ttbl.vlog th.dt{width:24mm;white-space:nowrap}
+.ttbl.vlog td.x,.ttbl.vlog th.x{width:34mm}
+.ttbl.vsum td.c,.ttbl.vsum th.c{width:22mm}
+.vemp:empty{display:none}
 .ded{width:100%;border-collapse:collapse;font-size:calc(var(--fs) * .95)}
 .ded th,.ded td{border:.3mm solid #8a8f98;padding:1.5mm 2.5mm;vertical-align:top}
 .ded th{background:#f1f2f4;font-weight:700;text-align:center}
@@ -563,8 +570,97 @@ const TYPES = {
       {k:'approverTitle', label:'جهة الاعتماد', type:'text', full:true, def:'اعتماد مدير شؤون الموظفين'},
       {k:'approverName', label:'اسم المعتمد', type:'text', full:true, def:'أ/ أحمد الناشري'},
     ]
+  },
+  violations: {
+    label:'تقرير مخالفات', sig:'nashri', align:'right', noLetterNo:true,
+    fields: [
+      {k:'csv', label:'استيراد من AppSheet', type:'csv', full:true},
+      {k:'date', label:'تاريخ التقرير', type:'date', def:()=>todayISO()},
+      {k:'title', label:'عنوان التقرير', type:'text', def:'تقرير مخالفات موظف'},
+      {k:'empName', label:'اسم الموظف', type:'text', full:true, def:''},
+      {k:'empNo', label:'الرقم الوظيفي', type:'text', def:''},
+      {k:'job', label:'المسمى الوظيفي', type:'text', def:''},
+      {k:'branch', label:'الفرع', type:'text', full:true, def:''},
+      {k:'from', label:'من تاريخ (اختياري)', type:'date', def:''},
+      {k:'to', label:'إلى تاريخ (اختياري)', type:'date', def:''},
+      {k:'showDet', label:'إظهار التفاصيل (مدة التأخر أو الانصراف)', type:'check', full:true, def:true},
+      {k:'showSum', label:'إظهار ملخص المخالفات حسب النوع', type:'check', full:true, def:true},
+      {k:'vio', label:'المخالفات', type:'vrows', full:true, def:[]},
+      {k:'notes', label:'ملاحظات (اختياري)', type:'textarea', full:true, rows:2, def:''},
+      {k:'approverTitle', label:'جهة الاعتماد', type:'text', full:true, def:'اعتماد مدير شؤون الموظفين'},
+      {k:'approverName', label:'اسم المعتمد', type:'text', full:true, def:'أ/ أحمد الناشري'},
+    ]
   }
 };
+
+/* ---------------- violations report: AppSheet CSV import ---------------- */
+// the report never shows deductions: only the violation, its date and (optionally) its duration
+function parseCSV(text){
+  text = String(text).replace(/^\uFEFF/, '');
+  const first = text.split(/\r?\n/)[0] || '';
+  const sep = (first.match(/;/g)||[]).length >= (first.match(/,/g)||[]).length ? ';' : ',';
+  const rows = []; let row = [], cur = '', q = false;
+  for(let i = 0; i < text.length; i++){
+    const c = text[i];
+    if(q){ if(c === '"'){ if(text[i+1] === '"'){ cur += '"'; i++; } else q = false; } else cur += c; continue; }
+    if(c === '"') q = true;
+    else if(c === sep){ row.push(cur); cur = ''; }
+    else if(c === '\n' || c === '\r'){ if(c === '\r' && text[i+1] === '\n') i++; row.push(cur); rows.push(row); row = []; cur = ''; }
+    else cur += c;
+  }
+  if(cur || row.length){ row.push(cur); rows.push(row); }
+  return rows.filter(r => r.some(x => String(x).trim()));
+}
+function vioType(t, full){
+  t = String(t||'').trim();
+  if(!t && full){ const parts = String(full).split(' - '); if(parts[1]) t = parts[1].trim(); }
+  if(!t) return '';
+  if(/^التأخر/.test(t)) return 'التأخر عن موعد الحضور';
+  if(/^ترك العمل|الانصراف قبل/.test(t)) return 'الانصراف قبل الميعاد دون إذن أو عذر مقبول';
+  if(/^التسكع|غير مكان عمله/.test(t)) return 'التواجد في غير مكان العمل أثناء ساعات العمل';
+  return t.replace(/\s+/g, ' ');
+}
+function vioDetail(s){
+  s = String(s||'').trim().replace(/^لمدة/, 'مدة');
+  if(/خصم|ريال/.test(s)) return '';   // never carry money into the report
+  return s.replace(/^انسحاب الموظف\s*/, '').replace(/مو موجود/g, 'غير متواجد');
+}
+function csvDateISO(s){
+  const m = String(s||'').match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/); if(m) return m[3]+'-'+m[2].padStart(2,'0')+'-'+m[1].padStart(2,'0');
+  const m2 = String(s||'').match(/(\d{4})[-\/](\d{1,2})[-\/](\d{1,2})/); if(m2) return m2[1]+'-'+m2[2].padStart(2,'0')+'-'+m2[3].padStart(2,'0');
+  return '';
+}
+function importViolations(text){
+  const rows = parseCSV(text); if(rows.length < 2) return null;
+  const h = rows[0].map(x => String(x).trim());
+  const col = (...tests) => h.findIndex(x => tests.some(t => t instanceof RegExp ? t.test(x) : x === t));
+  const C = {
+    date: col(/Violation Date/, /تاريخ المخالفة/), type: col('نوع المخالفة'), full: col('المخالفة كاملة'),
+    det: col(/^Details/, /التفاصيل/), name: col('اسم الموظف'), no: col(/Employee ID/, /الرقم الوظيفي/),
+    job: col(/المسمى الوظيفي/), branch: col('الفرع'), status: col(/Violation Status/, 'حالة المخالفة')
+  };
+  if(C.date < 0 || C.name < 0) return null;
+  const emps = {};
+  for(const r of rows.slice(1)){
+    const g = i => i >= 0 ? String(r[i]||'').trim() : '';
+    if(/مرفوض|ملغ/.test(g(C.status))) continue;
+    const date = csvDateISO(g(C.date)); const t = vioType(g(C.type), g(C.full));
+    if(!date || !t) continue;
+    const key = g(C.no) || g(C.name);
+    const e = emps[key] = emps[key] || {name:g(C.name), no:g(C.no), job:g(C.job), branch:g(C.branch), vio:[]};
+    e.vio.push({dt:date, t, x:vioDetail(g(C.det))});
+  }
+  const list = Object.values(emps);
+  list.forEach(e => e.vio.sort((a, b) => a.dt < b.dt ? -1 : a.dt > b.dt ? 1 : 0));
+  return list;
+}
+function applyVioEmp(d, e){
+  d.empName = e.name; d.empNo = e.no; d.job = e.job; d.branch = e.branch;
+  d.vio = e.vio.map(v => ({...v})); d.from = ''; d.to = '';
+}
+function vioInRange(d){
+  return (d.vio || []).filter(v => (v.t || v.dt) && (!d.from || !v.dt || v.dt >= d.from) && (!d.to || !v.dt || v.dt <= d.to));
+}
 
 
 /* ---------------- editable template library ---------------- */
@@ -915,6 +1011,32 @@ function buildBlocks(){
     if(d.notes){ b.push('<div class="h3">ملاحظات</div>'); b.push(...parseBody(d.notes)); }
     b.push(signBlock({html:'<div class="sl-dept">'+esc(d.approverTitle)+(d.approverTitle && !/[:：]$/.test(d.approverTitle) ? ':' : '')+'</div><div class="sl-name">'+esc(d.approverName)+'</div>'}));
   }
+  if(t === 'violations'){
+    const list = vioInRange(d);
+    const dn = iso => iso ? fmtDate(iso).num : '—';
+    const span = list.filter(v => v.dt).map(v => v.dt).sort();
+    const from = d.from || span[0], to = d.to || span[span.length-1];
+    b.push('<div class="doc-title"><span>'+esc(d.title)+'</span></div>');
+    b.push('<table class="info"><tr><th>اسم الموظف</th><td>'+esc(d.empName)+'</td><th>الرقم الوظيفي</th><td>'+esc(d.empNo)+'</td></tr>'+
+      '<tr><th>المسمى الوظيفي</th><td>'+esc(d.job)+'</td><th>تاريخ التقرير</th><td>'+esc(dn(d.date))+'</td></tr>'+
+      '<tr><th>الفرع</th><td colspan="3">'+esc(d.branch)+'</td></tr>'+
+      (from ? '<tr><th>الفترة</th><td colspan="3">من '+esc(dn(from))+' إلى '+esc(dn(to))+'</td></tr>' : '')+'</table>');
+    if(!list.length){ b.push('<p class="para" style="text-align:center;color:#666">لا توجد مخالفات. ارفع ملف CSV من AppSheet أو أضف المخالفات يدوياً.</p>'); }
+    else {
+      if(d.showSum !== false){
+        const cnt = {}; list.forEach(v => { const k = v.t || '—'; cnt[k] = (cnt[k]||0) + 1; });
+        const sum = Object.entries(cnt).sort((a, z) => z[1] - a[1]);
+        b.push('<div class="h3">ملخص المخالفات</div>');
+        b.push('<table class="ttbl vsum"><thead><tr><th>نوع المخالفة</th><th class="c">العدد</th></tr></thead><tbody>'+sum.map(([k, n]) => '<tr><td class="t">'+esc(k)+'</td><td class="c">'+n+'</td></tr>').join('')+'<tr class="tot"><td class="t">الإجمالي</td><td class="c">'+list.length+'</td></tr></tbody></table>');
+      }
+      const det = d.showDet !== false;
+      b.push('<div class="h3">سجل المخالفات</div>');
+      b.push('<table class="ttbl vlog split"><thead><tr><th class="n">م</th><th class="dt">التاريخ</th><th>المخالفة</th>'+(det ? '<th class="x">التفاصيل</th>' : '')+'</tr></thead><tbody>'+
+        list.map((v, i) => '<tr><td class="n">'+(i+1)+'</td><td class="dt">'+esc(dn(v.dt))+'</td><td class="t">'+esc(v.t)+'</td>'+(det ? '<td class="x">'+esc(v.x || '—')+'</td>' : '')+'</tr>').join('')+'</tbody></table>');
+    }
+    if(d.notes){ b.push('<div class="h3">ملاحظات</div>'); b.push(...parseBody(d.notes)); }
+    b.push(signBlock({html:'<div class="sl-dept">'+esc(d.approverTitle)+(d.approverTitle && !/[:：]$/.test(d.approverTitle) ? ':' : '')+'</div><div class="sl-name">'+esc(d.approverName)+'</div>'}));
+  }
   return b;
 }
 
@@ -1018,7 +1140,7 @@ function render(){
   }
   const co = coById(state.company);
   const shrunk = fs !== state.fs || lh !== state.lh;
-  $('#stageNote').textContent = n > 1 ? 'الخطاب في '+n+' صفحات. اختصر النص أو صغّر الخط ليصير صفحة واحدة.' :
+  $('#stageNote').textContent = n > 1 ? (state.type === 'violations' ? 'التقرير في '+n+' صفحات · '+co.short : 'الخطاب في '+n+' صفحات. اختصر النص أو صغّر الخط ليصير صفحة واحدة.') :
     'معاينة بحجم A4 · '+co.short + (shrunk ? ' · صُغّر الخط تلقائياً إلى '+fs+'pt ليكون صفحة واحدة' : '');
   bindDrag(); fit(); saveDraft();
 }
@@ -1034,6 +1156,28 @@ function layout(fs, lh){
     const tmp = document.createElement('div'); tmp.innerHTML = html; const el = tmp.firstElementChild; if(!el) continue;
     let cur = pages[pages.length-1].content;
     cur.appendChild(el);
+    if(el.classList.contains('split') && el.tBodies[0]){
+      // a long table continues on the next page with its header repeated
+      const over = c => c.scrollHeight > c.clientHeight + 1;
+      let tbl = el, guard = 0;
+      while(over(pages[pages.length-1].content) && guard++ < 60){
+        cur = pages[pages.length-1].content;
+        const body = tbl.tBodies[0]; const moved = [];
+        while(over(cur) && body.rows.length > 1){ const r = body.rows[body.rows.length-1]; body.removeChild(r); moved.unshift(r); }
+        if(over(cur) && cur.children.length > 1){
+          // not even one row fits here: move the whole table (and its heading) to a new page
+          moved.forEach(r => body.appendChild(r)); cur.removeChild(tbl);
+          const np = newPage(co); pages.push(np); const prev = cur.lastElementChild;
+          if(prev && prev.classList.contains('h3') && cur.children.length > 1) np.content.appendChild(prev);
+          np.content.appendChild(tbl); continue;
+        }
+        if(!moved.length) break;
+        const nt = tbl.cloneNode(false); nt.appendChild(tbl.tHead.cloneNode(true));
+        const nb = document.createElement('tbody'); moved.forEach(r => nb.appendChild(r)); nt.appendChild(nb);
+        const np = newPage(co); pages.push(np); np.content.appendChild(nt); tbl = nt;
+      }
+      continue;
+    }
     if(cur.scrollHeight > cur.clientHeight + 1 && cur.children.length > 1){
       cur.removeChild(el); const np = newPage(co); pages.push(np);
       // keep a subheading together with the block that follows it
@@ -1114,6 +1258,38 @@ function fieldEl(f, d, t){
   if(f.type === 'check'){
     w.innerHTML = '<label class="chk"><input type="checkbox" id="'+id+'"'+(d[f.k] ? ' checked' : '')+'> '+esc(f.label)+'</label>';
     w.querySelector('input').onchange = e => { d[f.k] = e.target.checked; renderSoon(); };
+  } else if(f.type === 'csv'){
+    w.innerHTML = '<label>'+esc(f.label)+'</label><label class="btn sm" style="justify-self:start">رفع ملف CSV<input type="file" accept=".csv,text/csv" hidden></label><span class="hint">صدّر جدول المخالفات من AppSheet كـ CSV وارفعه هنا. الخصومات ما تظهر في التقرير.</span><div class="vemp"></div>';
+    const pickBox = w.querySelector('.vemp');
+    w.querySelector('input').onchange = async e => {
+      const file = e.target.files[0]; e.target.value = ''; if(!file) return;
+      const list = importViolations(await file.text());
+      if(!list || !list.length){ toast('ما قدرت أقرأ الملف. تأكد أنه تصدير جدول المخالفات من AppSheet'); return; }
+      if(list.length === 1){ applyVioEmp(d, list[0]); renderFields(); render(); toast('تم استيراد '+list[0].vio.length+' مخالفة'); return; }
+      pickBox.innerHTML = '<label for="vEmpSel">الملف فيه أكثر من موظف، اختر الموظف</label><select id="vEmpSel"><option value="">— اختر —</option>'+list.map((x, i) => '<option value="'+i+'">'+esc(x.name)+' ('+esc(x.no)+') · '+x.vio.length+' مخالفة</option>').join('')+'</select>';
+      pickBox.querySelector('select').onchange = ev => { const x = list[+ev.target.value]; if(!x) return; applyVioEmp(d, x); renderFields(); render(); toast('تم استيراد '+x.vio.length+' مخالفة'); };
+    };
+  } else if(f.type === 'vrows'){
+    w.innerHTML = '<label>'+esc(f.label)+' <span class="vcnt"></span></label><div class="rows"></div><button class="btn sm" type="button">+ إضافة مخالفة</button>';
+    const rowsBox = w.querySelector('.rows');
+    const cnt = () => { w.querySelector('.vcnt').textContent = '('+(d[f.k]||[]).length+')'; };
+    const draw = () => {
+      rowsBox.innerHTML = '';
+      (d[f.k]||[]).forEach((r, i) => {
+        const row = document.createElement('div'); row.className = 'row'; row.style.gridTemplateColumns = '120px minmax(0,1fr) 30px';
+        row.innerHTML = '<input type="date" id="'+id+'_dt'+i+'" aria-label="التاريخ"><div style="display:grid;gap:4px"><input type="text" id="'+id+'_t'+i+'" placeholder="المخالفة" aria-label="المخالفة"><input type="text" id="'+id+'_x'+i+'" placeholder="التفاصيل (اختياري)" aria-label="التفاصيل"></div><button class="icon-btn" type="button" aria-label="حذف المخالفة">✕</button>';
+        const [a, b, c] = row.querySelectorAll('input');
+        a.value = r.dt || ''; b.value = r.t || ''; c.value = r.x || '';
+        a.oninput = e => { r.dt = e.target.value; renderSoon(); };
+        b.oninput = e => { r.t = e.target.value; renderSoon(); };
+        c.oninput = e => { r.x = e.target.value; renderSoon(); };
+        row.querySelector('button').onclick = () => { d[f.k].splice(i,1); draw(); renderSoon(); };
+        rowsBox.appendChild(row);
+      });
+      cnt();
+    };
+    w.querySelector('.btn').onclick = () => { (d[f.k] = d[f.k] || []).push({dt:'', t:'', x:''}); draw(); };
+    draw();
   } else if(f.type === 'rows'){
     w.innerHTML = '<label>'+esc(f.label)+'</label><div class="rows"></div><div class="total"><span>الإجمالي</span><span class="tv"></span></div><button class="btn sm" type="button">+ إضافة بند</button>';
     const rowsBox = w.querySelector('.rows');
@@ -1293,7 +1469,7 @@ function renderLookControls(){
   $('#stStamp').textContent = lk.hideStamp ? 'محذوف من الخطاب' : 'ظاهر في الخطاب';
   $('#stSig').textContent = lk.hideSig ? 'محذوف من الخطاب' : 'ظاهر في الخطاب';
   $('#showCo').checked = !lk.hideSignCo; $('#showDept').checked = !lk.hideSignDept; $('#showName').checked = !lk.hideSignName;
-  $('#tgCo').hidden = state.type === 'clearance';
+  $('#tgCo').hidden = state.type === 'clearance' || state.type === 'violations';
   $('#selAlign').value = lk.align || 'left';
   $('#stampSize').value = lk.stampSize || 34; $('#stampSizeO').textContent = (lk.stampSize||34)+' مم';
   $('#selFont').value = state.font; $('#fs').value = state.fs; $('#fsO').textContent = state.fs+'pt';
