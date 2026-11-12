@@ -342,7 +342,7 @@ dialog .df{padding:12px 16px;border-top:1px solid var(--line);display:flex;gap:8
         <button type="button" data-cmd="undo" title="تراجع">↶</button>
         <button type="button" data-cmd="redo" title="إعادة">↷</button>
         <span class="sep"></span>
-        <button type="button" id="btnSaveEdit" class="save" title="حفظ الخطاب بتعديلاته في سجل الخطابات">💾 حفظ التعديل</button>
+        <button type="button" id="btnSaveEdit" class="save" title="حفظ تعديلاتك على الخطاب">💾 حفظ التعديل</button>
         <button type="button" id="btnExitEdit" class="danger" title="مسح تعديلاتك والرجوع لنص القالب">رجوع لنص القالب</button>
       </div>
     </div>
@@ -1297,7 +1297,7 @@ function flushManual(){
   state.manualEdits[manualKey()] = [...pagesEl.querySelectorAll('.content')].map(cleanPageHtml);
   saveDraft();
 }
-$('#btnSaveEdit').onclick = () => { flushManual(); $('#btnSave').click(); };
+$('#btnSaveEdit').onclick = () => { flushManual(); toast('تم حفظ التعديل. يبقى الخطاب بتعديلاتك حتى لو أغلقت الصفحة'); };
 $('#btnExitEdit').onclick = () => {
   const b = $('#btnExitEdit');
   if(!b.dataset.confirm){ b.dataset.confirm = '1'; b.textContent = 'تأكيد؟ تنمسح تعديلاتك'; setTimeout(() => { delete b.dataset.confirm; b.textContent = 'رجوع لنص القالب'; }, 3500); return; }
@@ -1531,7 +1531,7 @@ function initCloud(){
 }
 
 /* ---------------- new version check ---------------- */
-const BUILD_ID = '20261112120133';
+const BUILD_ID = '20261112120555';
 async function checkForUpdate(){
   if(!/^https?:/.test(location.protocol)) return;
   try{
