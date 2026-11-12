@@ -205,6 +205,8 @@ button,input,select,textarea{font:inherit;color:inherit}
 .edbar{display:flex;align-items:center;gap:4px;flex-wrap:wrap;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:5px;box-shadow:0 6px 20px rgba(20,30,50,.12)}
 .edbar button{border:0;background:transparent;min-width:34px;height:32px;border-radius:7px;cursor:pointer;font-size:15px;color:var(--ink)}
 .edbar button:hover{background:var(--accent-soft);color:var(--accent)}
+.edbar button.save{background:var(--accent);color:var(--accent-ink);font-size:12.5px;padding:0 12px;font-weight:600}
+.edbar button.save:hover{filter:brightness(1.08);background:var(--accent);color:var(--accent-ink)}
 .edbar button.danger{color:var(--danger);font-size:12.5px;padding:0 10px}
 .edbar .sep{width:1px;height:20px;background:var(--line);margin:0 2px}
 .page.editing{box-shadow:0 0 0 2px var(--accent),0 18px 40px rgba(20,30,50,.12)}
@@ -340,6 +342,7 @@ dialog .df{padding:12px 16px;border-top:1px solid var(--line);display:flex;gap:8
         <button type="button" data-cmd="undo" title="تراجع">↶</button>
         <button type="button" data-cmd="redo" title="إعادة">↷</button>
         <span class="sep"></span>
+        <button type="button" id="btnSaveEdit" class="save" title="حفظ الخطاب بتعديلاته في سجل الخطابات">💾 حفظ التعديل</button>
         <button type="button" id="btnExitEdit" class="danger" title="مسح تعديلاتك والرجوع لنص القالب">رجوع لنص القالب</button>
       </div>
     </div>
@@ -1274,6 +1277,14 @@ document.querySelectorAll('#edBar [data-cmd]').forEach(b => {
   b.onmousedown = e => e.preventDefault();
   b.onclick = () => { document.execCommand(b.dataset.cmd, false, null); saveManual(); };
 });
+function flushManual(){
+  clearTimeout(manualSaveT);
+  if(!isManual()) return;
+  pagesEl.querySelectorAll('.ph-edit').forEach(s => { if(s.textContent !== s.dataset.label){ s.classList.remove('ph-edit'); s.removeAttribute('data-label'); } });
+  state.manualEdits[manualKey()] = [...pagesEl.querySelectorAll('.content')].map(cleanPageHtml);
+  saveDraft();
+}
+$('#btnSaveEdit').onclick = () => { flushManual(); $('#btnSave').click(); };
 $('#btnExitEdit').onclick = () => {
   const b = $('#btnExitEdit');
   if(!b.dataset.confirm){ b.dataset.confirm = '1'; b.textContent = 'تأكيد؟ تنمسح تعديلاتك'; setTimeout(() => { delete b.dataset.confirm; b.textContent = 'رجوع لنص القالب'; }, 3500); return; }
@@ -1367,6 +1378,7 @@ function renderArchive(){
   });
 }
 $('#btnSave').onclick = () => {
+  if(typeof flushManual === 'function') flushManual();
   if(state.tplDraft){ toast('احفظ القالب أو ألغِ التعديل أولاً'); return; }
   const d = D(); const item = {id:'a_'+Date.now(), at:Date.now(), company:state.company, type:state.type, data:JSON.parse(JSON.stringify(d)), look:JSON.parse(JSON.stringify(L()))};
   if(isManual()) item.manual = state.manualEdits[manualKey()];
@@ -1502,7 +1514,7 @@ function initCloud(){
 }
 
 /* ---------------- new version check ---------------- */
-const BUILD_ID = '20261112114549';
+const BUILD_ID = '20261112115647';
 async function checkForUpdate(){
   if(!/^https?:/.test(location.protocol)) return;
   try{
