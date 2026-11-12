@@ -656,9 +656,9 @@ function fillTpl(text, vals, auto){
     let v = (vals[k]||'').trim();
     // the template already writes the currency after the field: don't repeat it ("300 ريال ريال")
     if(/^\s*\)?\s*(ريال|ر\.س)/.test(str.slice(off + m.length))) v = v.replace(/\s*(ريال سعودي|ريال|ر\.س)\s*$/, '');
-    return v ? '\u0003'+v+'\u0004' : '\u0001'+k+'\u0002'; });
+    return v ? '\u0003'+k+'\u0005'+v+'\u0004' : '\u0001'+k+'\u0002'; });
 }
-const markPh = html => html.replace(/\u0001(.*?)\u0002/g, '<span class="ph">$1</span>').replace(/[\u0003\u0004]/g, '');
+const markPh = html => html.replace(/\u0001(.*?)\u0002/g, (m, k) => '<span class="ph" data-k="'+k+'">'+k+'</span>').replace(/\u0003([^\u0005]*)\u0005([\s\S]*?)\u0004/g, (m, k, v) => '<span class="fld" data-k="'+k+'">'+v+'</span>');
 function saveTplStores(){ const a = persist('overrides'), b = persist('templates'); return a && b; }
 
 function counters(){ return cloud.on ? {...cloud.counters} : store.get('counters', {}); }
@@ -703,7 +703,7 @@ const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt
 const inline = s => esc(s).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>');
 function toast(msg){ const t = $('#toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toast._t); toast._t = setTimeout(()=>t.classList.remove('show'), 2600); }
 function fmtNum(n){ return Number.isInteger(n) ? n.toLocaleString('en-US') : n.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2}); }
-function cellNum(raw){ const s = String(raw).replace(/\u0001.*?\u0002/g, '').replace(/[\u0003\u0004]/g, '').replace(/[^\d.]/g, ''); return /\d/.test(s) ? parseFloat(s) : null; }
+function cellNum(raw){ const s = String(raw).replace(/\u0001.*?\u0002/g, '').replace(/\u0003[^\u0005]*\u0005/g, '').replace(/\u0004/g, '').replace(/[^\d.]/g, ''); return /\d/.test(s) ? parseFloat(s) : null; }
 // table cells may hold: =م (row number), =c4+c5 (add/subtract other columns of the row), =المجموع (column total)
 // rows whose fields are all left empty are skipped, except the first data row
 function tableHtml(rows){
@@ -738,7 +738,7 @@ function tableHtml(rows){
       } else {
         v = (i > 0 && !narrow(i)) ? cellNum(c) : null;
         // amounts in a totalled column are written the same way as the computed ones (2,000)
-        if(moneyCol(i) && v !== null && /^[\u0003]?[\d,.\s]+(ريال سعودي|ريال|ر\.س)?\s*[\u0004]?$/.test(c)) c = '\u0003' + fmtNum(v) + '\u0004';
+        { const mm = c.match(/^(\u0003[^\u0005]*\u0005)?[\d,.\s]+(ريال سعودي|ريال|ر\.س)?\s*\u0004?$/); if(moneyCol(i) && v !== null && mm) c = (mm[1] || '') + fmtNum(v) + (mm[1] ? '\u0004' : ''); }
       }
       vals.push(v);
       cells.push('<td'+(narrow(i) ? ' class="n"' : '')+'>'+inline(c)+'</td>');
@@ -936,13 +936,26 @@ function renderManual(){
   state.manualEdits[manualKey()].forEach(html => {
     const pg = newPage(co); pg.page.classList.add('editing');
     pg.content.innerHTML = html; pg.content.contentEditable = 'true'; pg.content.spellcheck = false;
+    applyFieldsToManual(pg.content);
     const sign = pg.content.querySelector('.sign');
     if(sign){ sign.className = 'sign al-' + al; sign.insertAdjacentHTML('beforeend', signImgs(al)); sign.querySelectorAll('img.drag').forEach(i => i.contentEditable = 'false'); }
     pg.content.addEventListener('input', saveManual);
+    pg.content.addEventListener('click', e => { const s = e.target.closest && e.target.closest('.ph-edit'); if(s){ const r = document.createRange(); r.selectNodeContents(s); const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r); } });
     pg.content.addEventListener('paste', e => { e.preventDefault(); const txt = (e.clipboardData || window.clipboardData).getData('text/plain'); document.execCommand('insertText', false, txt); });
   });
   $('#edBar').hidden = false; $('#btnEdit').hidden = true;
+  state.manualEdits[manualKey()] = [...pagesEl.querySelectorAll('.content')].map(cleanPageHtml);
   bindDrag(); fit(); checkOverflow(); saveDraft();
+}
+function applyFieldsToManual(root){
+  if(state.type !== 'template') return;
+  const vals = ((D().vals || {})[D().tplId]) || {};
+  root.querySelectorAll('[data-k]').forEach(s => {
+    const k = s.dataset.k; if(!(k in vals)) return;
+    const v = String(vals[k] || '').trim();
+    if(v){ if(s.textContent !== v) s.textContent = v; s.className = 'fld'; s.removeAttribute('data-label'); }
+    else { s.textContent = k; s.className = 'ph-edit'; s.dataset.label = k; }
+  });
 }
 function enterManual(){
   if(state.tplDraft){ toast('احفظ القالب أو ألغِ التعديل أولاً'); return; }
@@ -1113,7 +1126,7 @@ function sub(box, text){ const h = document.createElement('div'); h.className = 
 function manualNotice(box){
   if(!isManual()) return;
   const n = document.createElement('div'); n.className = 'edit-head';
-  n.innerHTML = '<b>الخطاب في وضع التحرير المباشر</b><br>عدّل النص داخل الصفحة مباشرة. تغيير الحقول هنا ما يغيّر النص إلا إذا ضغطت «رجوع لنص القالب».';
+  n.innerHTML = '<b>الخطاب في وضع التحرير المباشر</b><br>عدّل النص داخل الصفحة مباشرة. الحقول هنا (مثل الاسم والرقم) تتحدّث داخل الخطاب وأنت تكتبها.';
   box.appendChild(n);
 }
 function renderTemplateFields(box, d){
@@ -1299,7 +1312,7 @@ $('#btnReset').onclick = () => {
 };
 $('#btnNew').onclick = () => {
   const co = coById(state.company);
-  delete state.manualEdits[manualKey()];
+  delete state.manualEdits[manualKey()]; state.curArc = null;
   const d = D(); d.date = todayISO(); if('letterNo' in d) d.letterNo = nextNo(co.id);
   renderFields(); render(); toast(TYPES[state.type].noLetterNo ? 'تاريخ اليوم جاهز' : 'رقم الخطاب الجديد: '+d.letterNo);
 };
@@ -1367,6 +1380,7 @@ function renderArchive(){
       state.company = coById(item.company).id; state.type = item.type; state.tplDraft = null;
       state.data[item.type] = JSON.parse(JSON.stringify(item.data));
       state.look[item.type] = JSON.parse(JSON.stringify(item.look));
+      state.curArc = {id:item.id, key:manualKey()};
       if(item.manual) state.manualEdits[manualKey()] = JSON.parse(JSON.stringify(item.manual)); else delete state.manualEdits[manualKey()];
       renderCompanies(); renderTypes(); renderFields(); renderLookControls(); render(); toast('تم فتح الخطاب');
     };
@@ -1382,12 +1396,13 @@ $('#btnSave').onclick = () => {
   if(state.tplDraft){ toast('احفظ القالب أو ألغِ التعديل أولاً'); return; }
   const d = D(); const item = {id:'a_'+Date.now(), at:Date.now(), company:state.company, type:state.type, data:JSON.parse(JSON.stringify(d)), look:JSON.parse(JSON.stringify(L()))};
   if(isManual()) item.manual = state.manualEdits[manualKey()];
-  const ex = archive.findIndex(a => a.company === item.company && a.type === item.type && a.data.letterNo && a.data.letterNo === d.letterNo);
+  const ex = (state.curArc && state.curArc.key === manualKey()) ? archive.findIndex(a => a.id === state.curArc.id) : -1;
   let saved = item;
   if(ex >= 0){ saved = {...item, id:archive[ex].id}; archive[ex] = saved; } else archive.push(item);
   if(d.letterNo && /^\d+$/.test(d.letterNo)){ const c = counters(); c[state.company] = Math.max(c[state.company]||0, +d.letterNo); saveCounters(c); }
+  state.curArc = {id:saved.id, key:manualKey()};
   const ok = putLetter(saved); renderArchive();
-  toast(ok ? (ex >= 0 ? 'تم تحديث الخطاب في السجل' : 'تم الحفظ في السجل') : 'تعذر الحفظ: مساحة المتصفح ممتلئة');
+  toast(ok ? (ex >= 0 ? 'تم حفظ التعديل وتحديث الخطاب في السجل' : 'تم الحفظ في السجل') : 'تعذر الحفظ: مساحة المتصفح ممتلئة');
 };
 
 /* ---------------- export ---------------- */
@@ -1397,6 +1412,7 @@ function fileName(){
   return parts.join(' - ').replace(/[\\/:*?"<>|]/g,'-') + '.pdf';
 }
 $('#btnPdf').onclick = async () => {
+  if(typeof flushManual === 'function') flushManual();
   const btn = $('#btnPdf'); const label = btn.innerHTML;
   if(!window.html2canvas || !window.jspdf){ toast('تعذر تحميل مكتبة PDF. تأكد من الاتصال بالإنترنت، أو استخدم زر «طباعة» واختر حفظ كـ PDF.'); return; }
   const empty = pagesEl.querySelectorAll('.ph').length;
@@ -1425,7 +1441,8 @@ $('#btnPdf').onclick = async () => {
   }catch(err){ console.error(err); toast('تعذر إنشاء الملف. جرّب زر «طباعة» واختر حفظ كـ PDF.'); }
   finally{ stage.classList.remove('exporting'); fit(); btn.disabled = false; btn.innerHTML = label; }
 };
-$('#btnPrint').onclick = () => { document.fonts.ready.then(() => window.print()); };
+$('#btnPrint').onclick = () => {
+  if(typeof flushManual === 'function') flushManual(); document.fonts.ready.then(() => window.print()); };
 
 /* ---------------- Firebase connection ---------------- */
 function authMsg(code){
@@ -1514,7 +1531,7 @@ function initCloud(){
 }
 
 /* ---------------- new version check ---------------- */
-const BUILD_ID = '20261112115647';
+const BUILD_ID = '20261112120133';
 async function checkForUpdate(){
   if(!/^https?:/.test(location.protocol)) return;
   try{
