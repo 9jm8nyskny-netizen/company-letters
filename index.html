@@ -122,7 +122,7 @@ button,input,select,textarea{font:inherit;color:inherit}
 .closing{text-align:center;font-weight:700;margin-top:2mm}
 .sign{position:relative;width:76mm;padding-bottom:10mm;text-align:center;display:flex;flex-direction:column;gap:.6mm;margin-top:2mm;font-weight:700}
 .stage.light .content *{font-weight:400!important}
-.stage.light .content .subject,.stage.light .content .subject *,.stage.light .content .doc-title,.stage.light .content .doc-title *,.stage.light .content .meta,.stage.light .content .meta *,.stage.light .content .h3{font-weight:700!important}
+.stage.light .content .subject,.stage.light .content .subject *,.stage.light .content .doc-title,.stage.light .content .doc-title *,.stage.light .content b,.stage.light .content strong,.stage.light .content .meta,.stage.light .content .meta *,.stage.light .content .h3{font-weight:700!important}
 .approve{align-self:center;text-align:center;font-weight:700;display:flex;flex-direction:column;gap:.8mm;margin-top:0;min-width:70mm}
 .approve .sl2{font-weight:600}
 .empblk{display:flex;flex-direction:column;gap:2.2mm;margin-top:2mm}
@@ -201,6 +201,16 @@ button,input,select,textarea{font:inherit;color:inherit}
 .gate-card .err{color:var(--danger);font-size:13px;min-height:1em}
 .linkbtn{background:none;border:0;color:var(--accent);cursor:pointer;font-size:12.5px;padding:0;align-self:flex-start}
 .updbar{position:fixed;top:calc(64px + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);z-index:55;display:flex;align-items:center;gap:12px;background:var(--panel);border:1.5px solid var(--accent);border-radius:12px;padding:8px 10px 8px 14px;box-shadow:0 10px 30px rgba(20,30,50,.18);font-weight:600;font-size:13.5px;max-width:calc(100% - 32px)}
+.edtools{position:sticky;top:8px;z-index:5;display:flex;justify-content:center;width:100%}
+.edbar{display:flex;align-items:center;gap:4px;flex-wrap:wrap;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:5px;box-shadow:0 6px 20px rgba(20,30,50,.12)}
+.edbar button{border:0;background:transparent;min-width:34px;height:32px;border-radius:7px;cursor:pointer;font-size:15px;color:var(--ink)}
+.edbar button:hover{background:var(--accent-soft);color:var(--accent)}
+.edbar button.danger{color:var(--danger);font-size:12.5px;padding:0 10px}
+.edbar .sep{width:1px;height:20px;background:var(--line);margin:0 2px}
+.page.editing{box-shadow:0 0 0 2px var(--accent),0 18px 40px rgba(20,30,50,.12)}
+.content[contenteditable="true"]{outline:none;cursor:text}
+.ph-edit{background:#eef2fb;color:#5a6a8e;border-radius:2px;padding:0 2px}
+.exporting .ph-edit{background:none;color:transparent;border-bottom:1px dotted #888}
 .toast{position:fixed;bottom:max(18px,env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%) translateY(20px);background:var(--ink);color:var(--panel);padding:10px 18px;border-radius:10px;font-size:13.5px;opacity:0;pointer-events:none;transition:.25s;z-index:50;max-width:calc(100% - 32px)}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
@@ -227,6 +237,9 @@ dialog .df{padding:12px 16px;border-top:1px solid var(--line);display:flex;gap:8
   .page{box-shadow:none;transform:none}
   .drag{outline:none!important}
   .ph{background:none!important;color:transparent!important;border-bottom:1px dotted #888}
+  .ph-edit{background:none!important;color:transparent!important;border-bottom:1px dotted #888}
+  .edtools{display:none!important}
+  .page.editing{box-shadow:none!important}
   *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
 }
 </style>
@@ -311,6 +324,25 @@ dialog .df{padding:12px 16px;border-top:1px solid var(--line);display:flex;gap:8
   </aside>
 
   <main class="stage" id="stage">
+    <div class="edtools">
+      <button class="btn" id="btnEdit" type="button">✎ تحرير مباشر داخل الخطاب</button>
+      <div class="edbar" id="edBar" hidden>
+        <button type="button" data-cmd="bold" title="عريض"><b>B</b></button>
+        <button type="button" data-cmd="italic" title="مائل"><i>I</i></button>
+        <button type="button" data-cmd="underline" title="تحته خط"><u>U</u></button>
+        <span class="sep"></span>
+        <button type="button" data-cmd="justifyRight" title="محاذاة لليمين">⇥</button>
+        <button type="button" data-cmd="justifyCenter" title="توسيط">≡</button>
+        <button type="button" data-cmd="justifyLeft" title="محاذاة لليسار">⇤</button>
+        <button type="button" data-cmd="justifyFull" title="ضبط">☰</button>
+        <span class="sep"></span>
+        <button type="button" data-cmd="insertUnorderedList" title="نقاط">•</button>
+        <button type="button" data-cmd="undo" title="تراجع">↶</button>
+        <button type="button" data-cmd="redo" title="إعادة">↷</button>
+        <span class="sep"></span>
+        <button type="button" id="btnExitEdit" class="danger" title="مسح تعديلاتك والرجوع لنص القالب">رجوع لنص القالب</button>
+      </div>
+    </div>
     <div class="stage-note" id="stageNote"></div>
     <div id="pages" style="display:contents"></div>
   </main>
@@ -769,12 +801,23 @@ function signBlock(lines){
   // default placement (mm, physical coords inside the 76mm wide block)
   const stampBase = al === 'right' ? {left:-sz+4, top:-2} : {left:76-4, top:-2};
   if(al === 'center') { stampBase.left = 76-4; }
+  return '<div class="sign al-'+al+'">'+lines.html+signImgs(al)+'</div>';
+}
+function signImgs(al){
+  const lk = L(); const co = coById(state.company);
+  let stampSrc = null;
+  if(lk.hideStamp) stampSrc = null;
+  else if(lk.stamp === 'company') stampSrc = co.stamp;
+  else if(lk.stamp && lk.stamp !== 'none'){ const cs = customStamps.find(s => s.id === lk.stamp); if(cs) stampSrc = cs.src; else { const oc = allCos().find(c=>c.id===lk.stamp); if(oc) stampSrc = oc.stamp; } }
+  const sig = lk.hideSig ? null : SIGS().find(s => s.id === lk.sig);
+  const sz = lk.stampSize || 34;
+  const stampBase = al === 'right' ? {left:-sz+4, top:-2} : {left:76-4, top:-2};
   const sigW = sig ? sig.w : 38;
   const p = lk.pos || {stamp:{x:0,y:0}, sig:{x:0,y:0}};
-  let h = '<div class="sign al-'+al+'">'+lines.html;
+  let h = '';
   if(stampSrc) h += '<img class="drag" data-key="stamp" src="'+stampSrc+'" style="width:'+sz+'mm;left:'+stampBase.left+'mm;top:'+stampBase.top+'mm;transform:translate('+p.stamp.x+'mm,'+p.stamp.y+'mm)" alt="الختم" draggable="false">';
   if(sig) h += '<img class="drag" data-key="sig" src="'+sig.src+'" style="width:'+sigW+'mm;left:'+((76-sigW)/2)+'mm;bottom:-2mm;max-height:18mm;object-fit:contain;transform:translate('+p.sig.x+'mm,'+p.sig.y+'mm)" alt="التوقيع" draggable="false">';
-  return h + '</div>';
+  return h;
 }
 
 function buildBlocks(){
@@ -856,7 +899,64 @@ function newPage(co){
   page.appendChild(content); holder.appendChild(page); pagesEl.appendChild(holder);
   return {page, content};
 }
+/* ---------------- direct (Word-like) editing ---------------- */
+state.manualEdits = state.manualEdits || {};
+const manualKey = () => state.type + (state.type === 'template' ? ':' + (D().tplId || '') : '');
+const isManual = () => !!state.manualEdits[manualKey()];
+function cleanPageHtml(content){
+  const c = content.cloneNode(true);
+  c.querySelectorAll('img.drag').forEach(i => i.remove());
+  c.removeAttribute('contenteditable');
+  return c.innerHTML;
+}
+let manualSaveT;
+function saveManual(){
+  clearTimeout(manualSaveT);
+  manualSaveT = setTimeout(() => {
+    // a field you typed into becomes normal text
+    pagesEl.querySelectorAll('.ph-edit').forEach(s => { if(s.textContent !== s.dataset.label){ s.classList.remove('ph-edit'); s.removeAttribute('data-label'); } });
+    state.manualEdits[manualKey()] = [...pagesEl.querySelectorAll('.content')].map(cleanPageHtml);
+    checkOverflow(); saveDraft();
+  }, 300);
+}
+function checkOverflow(){
+  const over = [...pagesEl.querySelectorAll('.content')].some(c => c.scrollHeight > c.clientHeight + 2);
+  $('#stageNote').textContent = over ? 'تنبيه: النص تجاوز مساحة الصفحة، وما بعد الحد ما يطلع في الملف. اختصر النص أو صغّر الخط من قسم التنسيق.'
+    : 'وضع التحرير المباشر · اكتب وعدّل داخل الخطاب مثل الوورد';
+}
+function renderManual(){
+  const co = coById(state.company);
+  stage.style.setProperty('--lf', state.font); stage.style.setProperty('--fs', state.fs+'pt'); stage.style.setProperty('--lh', state.lh);
+  stage.classList.toggle('light', state.type === 'template' && !!curTpl().light);
+  pagesEl.innerHTML = '';
+  const al = L().align || 'left';
+  state.manualEdits[manualKey()].forEach(html => {
+    const pg = newPage(co); pg.page.classList.add('editing');
+    pg.content.innerHTML = html; pg.content.contentEditable = 'true'; pg.content.spellcheck = false;
+    const sign = pg.content.querySelector('.sign');
+    if(sign){ sign.className = 'sign al-' + al; sign.insertAdjacentHTML('beforeend', signImgs(al)); sign.querySelectorAll('img.drag').forEach(i => i.contentEditable = 'false'); }
+    pg.content.addEventListener('input', saveManual);
+    pg.content.addEventListener('paste', e => { e.preventDefault(); const txt = (e.clipboardData || window.clipboardData).getData('text/plain'); document.execCommand('insertText', false, txt); });
+  });
+  $('#edBar').hidden = false; $('#btnEdit').hidden = true;
+  bindDrag(); fit(); checkOverflow(); saveDraft();
+}
+function enterManual(){
+  if(state.tplDraft){ toast('احفظ القالب أو ألغِ التعديل أولاً'); return; }
+  const pages = [...pagesEl.querySelectorAll('.content')].map(c => {
+    const x = c.cloneNode(true);
+    x.querySelectorAll('img.drag').forEach(i => i.remove());
+    x.querySelectorAll('.ph').forEach(s => { s.className = 'ph-edit'; s.dataset.label = s.textContent; });
+    return x.innerHTML;
+  });
+  state.manualEdits[manualKey()] = pages; renderFields(); render();
+  toast('صار الخطاب قابلاً للكتابة. اضغط داخل النص وعدّل مثل الوورد');
+}
+function exitManual(){ delete state.manualEdits[manualKey()]; $('#edBar').hidden = true; $('#btnEdit').hidden = false; renderFields(); render(); }
+
 function render(){
+  if(isManual()){ renderManual(); return; }
+  $('#edBar').hidden = true; $('#btnEdit').hidden = false;
   let fs = state.fs, lh = state.lh;
   let n = layout(fs, lh);
   if(n > 1 && state.autofit !== false){
@@ -1003,11 +1103,19 @@ function renderFields(){
   const box = $('#fields'); box.innerHTML = ''; const d = D(); const t = state.type;
   $('#btnReset').textContent = t === 'template' ? 'تفريغ الحقول' : 'إرجاع النص الافتراضي';
   if(t === 'template'){ renderTemplateFields(box, d); return; }
+  manualNotice(box);
   for(const f of TYPES[t].fields){ if(f.type !== 'hidden') box.appendChild(fieldEl(f, d, t)); }
 }
 function sub(box, text){ const h = document.createElement('div'); h.className = 'sub-h'; h.textContent = text; box.appendChild(h); }
+function manualNotice(box){
+  if(!isManual()) return;
+  const n = document.createElement('div'); n.className = 'edit-head';
+  n.innerHTML = '<b>الخطاب في وضع التحرير المباشر</b><br>عدّل النص داخل الصفحة مباشرة. تغيير الحقول هنا ما يغيّر النص إلا إذا ضغطت «رجوع لنص القالب».';
+  box.appendChild(n);
+}
 function renderTemplateFields(box, d){
   if(state.tplDraft){ renderTplEditor(box); return; }
+  manualNotice(box);
   const tp = getTpl(d.tplId); d.tplId = tp.id;
   const pick = document.createElement('div'); pick.className = 'f full';
   const cats = {}; allTpls().forEach(x => { const c = x.custom ? (x.category || 'قوالبي') : x.category; (cats[c] = cats[c] || []).push(x); });
@@ -1161,7 +1269,18 @@ $('#selFont').onchange = e => { state.font = e.target.value; document.fonts.read
 $('#fs').oninput = e => { state.fs = +e.target.value; $('#fsO').textContent = state.fs+'pt'; renderSoon(); };
 $('#lh').oninput = e => { state.lh = +e.target.value; $('#lhO').textContent = state.lh; renderSoon(); };
 
+$('#btnEdit').onclick = enterManual;
+document.querySelectorAll('#edBar [data-cmd]').forEach(b => {
+  b.onmousedown = e => e.preventDefault();
+  b.onclick = () => { document.execCommand(b.dataset.cmd, false, null); saveManual(); };
+});
+$('#btnExitEdit').onclick = () => {
+  const b = $('#btnExitEdit');
+  if(!b.dataset.confirm){ b.dataset.confirm = '1'; b.textContent = 'تأكيد؟ تنمسح تعديلاتك'; setTimeout(() => { delete b.dataset.confirm; b.textContent = 'رجوع لنص القالب'; }, 3500); return; }
+  delete b.dataset.confirm; b.textContent = 'رجوع لنص القالب'; exitManual(); toast('رجع الخطاب لنص القالب');
+};
 $('#btnReset').onclick = () => {
+  delete state.manualEdits[manualKey()];
   if(state.type === 'template'){ const d = D(); if(state.tplDraft){ toast('أنهِ تعديل القالب أولاً'); return; } (d.vals = d.vals || {})[d.tplId] = {}; renderFields(); render(); toast('تم تفريغ الحقول'); return; }
   const keep = {date:D().date, letterNo:D().letterNo};
   state.data[state.type] = Object.assign(defaultsFor(state.type, coById(state.company)), keep);
@@ -1169,6 +1288,7 @@ $('#btnReset').onclick = () => {
 };
 $('#btnNew').onclick = () => {
   const co = coById(state.company);
+  delete state.manualEdits[manualKey()];
   const d = D(); d.date = todayISO(); if('letterNo' in d) d.letterNo = nextNo(co.id);
   renderFields(); render(); toast(TYPES[state.type].noLetterNo ? 'تاريخ اليوم جاهز' : 'رقم الخطاب الجديد: '+d.letterNo);
 };
@@ -1236,6 +1356,7 @@ function renderArchive(){
       state.company = coById(item.company).id; state.type = item.type; state.tplDraft = null;
       state.data[item.type] = JSON.parse(JSON.stringify(item.data));
       state.look[item.type] = JSON.parse(JSON.stringify(item.look));
+      if(item.manual) state.manualEdits[manualKey()] = JSON.parse(JSON.stringify(item.manual)); else delete state.manualEdits[manualKey()];
       renderCompanies(); renderTypes(); renderFields(); renderLookControls(); render(); toast('تم فتح الخطاب');
     };
     del.onclick = () => {
@@ -1248,6 +1369,7 @@ function renderArchive(){
 $('#btnSave').onclick = () => {
   if(state.tplDraft){ toast('احفظ القالب أو ألغِ التعديل أولاً'); return; }
   const d = D(); const item = {id:'a_'+Date.now(), at:Date.now(), company:state.company, type:state.type, data:JSON.parse(JSON.stringify(d)), look:JSON.parse(JSON.stringify(L()))};
+  if(isManual()) item.manual = state.manualEdits[manualKey()];
   const ex = archive.findIndex(a => a.company === item.company && a.type === item.type && a.data.letterNo && a.data.letterNo === d.letterNo);
   let saved = item;
   if(ex >= 0){ saved = {...item, id:archive[ex].id}; archive[ex] = saved; } else archive.push(item);
@@ -1380,7 +1502,7 @@ function initCloud(){
 }
 
 /* ---------------- new version check ---------------- */
-const BUILD_ID = '20261112113855';
+const BUILD_ID = '20261112114549';
 async function checkForUpdate(){
   if(!/^https?:/.test(location.protocol)) return;
   try{
