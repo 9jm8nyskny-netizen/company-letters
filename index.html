@@ -17,6 +17,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Noto+Naskh+Arabic:wght@400;600;700&family=Tajawal:wght@400;500;700&family=Cairo:wght@400;600;700&family=Amiri:wght@400;700&display=swap">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
@@ -746,9 +747,9 @@ const BUILTIN_TPLS = [
    to:'إلى / الإدارة المالية وإدارة شؤون الموظفين   المحترمين ،،', title:'', subject:'طلب اعتماد سداد غرامة تأخير تجديد الإقامة',
    body:'نرفع لسعادتكم طلب اعتماد سداد غرامة تأخير تجديد الإقامة الخاصة بالموظف/ـة الموضحة بياناته أدناه، والبالغ قدرها ({مبلغ الغرامة}) ريال، وتحمّلها من قبل المنشأة، وذلك نظراً لأن إقامته كانت سارية المفعول عند مباشرته العمل لدى المنشأة، وقد ترتبت الغرامة خلال فترة عمله لديها.\n## بيانات الموظف\n| اسم الموظف | رقم الإقامة | تاريخ المباشرة | تاريخ انتهاء الإقامة |\n| {اسم الموظف} | {رقم الإقامة} | {تاريخ المباشرة} | {تاريخ انتهاء الإقامة} |\nلذا نأمل التكرم بالموافقة على سداد الغرامة المذكورة وتحمّلها من قبل المنشأة.',
    closing:'شاكرين لكم حسن تعاونكم،', approveTitle:'اعتماد الإدارة', approveName:'م/ لبنى الهمداني'},
-  {...HR_SIGN, id:'sponsorship-transfer', ver:1, name:'اعتماد نقل كفالات الموظفين', category:'طلبات داخلية', showNo:false, light:true, toPos:'afterSubject', salutation:'',
+  {...HR_SIGN, id:'sponsorship-transfer', ver:2, name:'اعتماد نقل كفالات الموظفين', category:'طلبات داخلية', showNo:false, light:true, toPos:'afterSubject', salutation:'',
    to:'إلى / إدارة شؤون الموظفين والإدارة المالية   المحترمين ،،', title:'', subject:'طلب اعتماد نقل كفالات الموظفين',
-   body:'نرفع لسعادتكم طلب اعتماد نقل كفالة الموظفين الموضحة أسماؤهم أدناه، والذين أبدوا استعدادهم لتحمّل كافة رسوم نقل الكفالة، على أن تتحمّل المنشأة مبلغ (2,000) ريال عن كل موظف، ويتحمّل الموظف باقي الرسوم.\n## بيانات الموظفين\n| م | اسم الموظف | رقم الإقامة | الرقم الوظيفي | مساهمة المنشأة |\n| =م | {اسم الموظف 1} | {رقم الإقامة 1} | {الرقم الوظيفي 1} | 2,000 |\n| =م | {اسم الموظف 2} | {رقم الإقامة 2} | {الرقم الوظيفي 2} | 2,000 |\n| =م | {اسم الموظف 3} | {رقم الإقامة 3} | {الرقم الوظيفي 3} | 2,000 |\n| =م | {اسم الموظف 4} | {رقم الإقامة 4} | {الرقم الوظيفي 4} | 2,000 |\n| =م | {اسم الموظف 5} | {رقم الإقامة 5} | {الرقم الوظيفي 5} | 2,000 |\n| =م | {اسم الموظف 6} | {رقم الإقامة 6} | {الرقم الوظيفي 6} | 2,000 |\n| =م | {اسم الموظف 7} | {رقم الإقامة 7} | {الرقم الوظيفي 7} | 2,000 |\n| =م | {اسم الموظف 8} | {رقم الإقامة 8} | {الرقم الوظيفي 8} | 2,000 |\n|  | إجمالي مساهمة المنشأة |  |  | =المجموع |\nلذا نأمل التكرم بالموافقة على اعتماد نقل الكفالات المذكورة، وصرف مساهمة المنشأة وفق ما هو موضح أعلاه.',
+   body:'نرفع لسعادتكم طلب اعتماد نقل كفالة الموظفين الموضحة أسماؤهم أدناه، والذين أبدوا استعدادهم لتحمّل كافة رسوم نقل الكفالة، على أن تتحمّل المنشأة مبلغ (2,000) ريال عن كل موظف، ويتحمّل الموظف باقي الرسوم.\n## بيانات الموظفين\n| م | اسم الموظف | رقم الإقامة | الرقم الوظيفي | مساهمة المنشأة |\n| =م | {اسم الموظف 1} | {رقم الإقامة 1} | {الرقم الوظيفي 1} | 2,000 |\n| =م | {اسم الموظف 2} | {رقم الإقامة 2} | {الرقم الوظيفي 2} | 2,000 |\n| =م | {اسم الموظف 3} | {رقم الإقامة 3} | {الرقم الوظيفي 3} | 2,000 |\n| =م | {اسم الموظف 4} | {رقم الإقامة 4} | {الرقم الوظيفي 4} | 2,000 |\n| =م | {اسم الموظف 5} | {رقم الإقامة 5} | {الرقم الوظيفي 5} | 2,000 |\n| =م | {اسم الموظف 6} | {رقم الإقامة 6} | {الرقم الوظيفي 6} | 2,000 |\n| =م | {اسم الموظف 7} | {رقم الإقامة 7} | {الرقم الوظيفي 7} | 2,000 |\n| =م | {اسم الموظف 8} | {رقم الإقامة 8} | {الرقم الوظيفي 8} | 2,000 |\n| =م | {اسم الموظف 9} | {رقم الإقامة 9} | {الرقم الوظيفي 9} | 2,000 |\n| =م | {اسم الموظف 10} | {رقم الإقامة 10} | {الرقم الوظيفي 10} | 2,000 |\n| =م | {اسم الموظف 11} | {رقم الإقامة 11} | {الرقم الوظيفي 11} | 2,000 |\n| =م | {اسم الموظف 12} | {رقم الإقامة 12} | {الرقم الوظيفي 12} | 2,000 |\n| =م | {اسم الموظف 13} | {رقم الإقامة 13} | {الرقم الوظيفي 13} | 2,000 |\n| =م | {اسم الموظف 14} | {رقم الإقامة 14} | {الرقم الوظيفي 14} | 2,000 |\n| =م | {اسم الموظف 15} | {رقم الإقامة 15} | {الرقم الوظيفي 15} | 2,000 |\n| =م | {اسم الموظف 16} | {رقم الإقامة 16} | {الرقم الوظيفي 16} | 2,000 |\n| =م | {اسم الموظف 17} | {رقم الإقامة 17} | {الرقم الوظيفي 17} | 2,000 |\n| =م | {اسم الموظف 18} | {رقم الإقامة 18} | {الرقم الوظيفي 18} | 2,000 |\n| =م | {اسم الموظف 19} | {رقم الإقامة 19} | {الرقم الوظيفي 19} | 2,000 |\n| =م | {اسم الموظف 20} | {رقم الإقامة 20} | {الرقم الوظيفي 20} | 2,000 |\n| =م | {اسم الموظف 21} | {رقم الإقامة 21} | {الرقم الوظيفي 21} | 2,000 |\n| =م | {اسم الموظف 22} | {رقم الإقامة 22} | {الرقم الوظيفي 22} | 2,000 |\n| =م | {اسم الموظف 23} | {رقم الإقامة 23} | {الرقم الوظيفي 23} | 2,000 |\n| =م | {اسم الموظف 24} | {رقم الإقامة 24} | {الرقم الوظيفي 24} | 2,000 |\n| =م | {اسم الموظف 25} | {رقم الإقامة 25} | {الرقم الوظيفي 25} | 2,000 |\n| =م | {اسم الموظف 26} | {رقم الإقامة 26} | {الرقم الوظيفي 26} | 2,000 |\n| =م | {اسم الموظف 27} | {رقم الإقامة 27} | {الرقم الوظيفي 27} | 2,000 |\n| =م | {اسم الموظف 28} | {رقم الإقامة 28} | {الرقم الوظيفي 28} | 2,000 |\n| =م | {اسم الموظف 29} | {رقم الإقامة 29} | {الرقم الوظيفي 29} | 2,000 |\n| =م | {اسم الموظف 30} | {رقم الإقامة 30} | {الرقم الوظيفي 30} | 2,000 |\n| =م | {اسم الموظف 31} | {رقم الإقامة 31} | {الرقم الوظيفي 31} | 2,000 |\n| =م | {اسم الموظف 32} | {رقم الإقامة 32} | {الرقم الوظيفي 32} | 2,000 |\n| =م | {اسم الموظف 33} | {رقم الإقامة 33} | {الرقم الوظيفي 33} | 2,000 |\n| =م | {اسم الموظف 34} | {رقم الإقامة 34} | {الرقم الوظيفي 34} | 2,000 |\n| =م | {اسم الموظف 35} | {رقم الإقامة 35} | {الرقم الوظيفي 35} | 2,000 |\n| =م | {اسم الموظف 36} | {رقم الإقامة 36} | {الرقم الوظيفي 36} | 2,000 |\n| =م | {اسم الموظف 37} | {رقم الإقامة 37} | {الرقم الوظيفي 37} | 2,000 |\n| =م | {اسم الموظف 38} | {رقم الإقامة 38} | {الرقم الوظيفي 38} | 2,000 |\n| =م | {اسم الموظف 39} | {رقم الإقامة 39} | {الرقم الوظيفي 39} | 2,000 |\n| =م | {اسم الموظف 40} | {رقم الإقامة 40} | {الرقم الوظيفي 40} | 2,000 |\n|  | إجمالي مساهمة المنشأة |  |  | =المجموع |\nلذا نأمل التكرم بالموافقة على اعتماد نقل الكفالات المذكورة، وصرف مساهمة المنشأة وفق ما هو موضح أعلاه.',
    closing:'شاكرين لكم حسن تعاونكم،', approveTitle:'اعتماد الإدارة', approveName:'م/ لبنى الهمداني'},
   {...HR_SIGN, id:'loan-request', ver:4, name:'طلب سلفة مالية', category:'طلبات الموظفين', showNo:false, light:true, toPos:'afterSubject', noSign:true,
    to:'إلى / إدارة {اسم الشركة}   المحترمين ،،', title:'', subject:'طلب سلفة مالية', salutation:'تحية طيبة وبعد،',
@@ -844,7 +845,7 @@ function cellNum(raw){ const s = String(raw).replace(/\u0001.*?\u0002/g, '').rep
 function tableHtml(rows){
   const cols = Math.max(...rows.map(r => r.length));
   const narrow = c => /^(م|#|ت|رقم)$/.test((rows[0][c]||'').trim());
-  const head = '<tr>'+rows[0].map((c, i) => '<th'+(narrow(i) ? ' class="n"' : '')+'>'+inline(c)+'</th>').join('')+'</tr>';
+  const head = '<thead><tr>'+rows[0].map((c, i) => '<th'+(narrow(i) ? ' class="n"' : '')+'>'+inline(c)+'</th>').join('')+'</tr></thead>';
   const kept = []; let dataIdx = 0, num = 0, body = '';
   const totRow = rows.slice(1).find(r => r.some(c => c.trim().startsWith('=المجموع'))) || [];
   const moneyCol = i => (totRow[i] || '').trim() === '=المجموع' || /ريال|الراتب|الإكرامية|المبلغ|البدل/.test(rows[0][i] || '');
@@ -890,7 +891,7 @@ function tableHtml(rows){
     body += '<tr'+(isTot ? ' class="tot"' : '')+'>'+cells.join('')+'</tr>';
   });
   const nRows = (body.match(/<tr/g) || []).length;
-  return '<table class="ttbl'+(nRows > 8 ? ' dense' : '')+'">'+head+body+'</table>';
+  return '<table class="ttbl'+(nRows > 8 ? ' dense split' : '')+'">'+head+'<tbody>'+body+'</tbody></table>';
 }
 function parseBody(text){
   const out = []; let list = null, table = null;
@@ -1380,6 +1381,15 @@ function renderTemplateFields(box, d){
   sub(box, keys.length ? 'عبّ الحقول (الفاضي يظهر مظللاً في المعاينة)' : 'هذا القالب ما فيه حقول متغيرة');
   const optKeys = new Set(); TPL_TEXT_KEYS.forEach(f => String(tp[f]||'').replace(/\[\[([\s\S]*?)\]\]/g, (m, inner) => { [...inner.matchAll(/\{([^{}\n]+)\}/g)].forEach(x => optKeys.add(x[1].trim())); return m; }));
   keys.forEach((k, i) => box.appendChild(fieldEl({k, label:k + (optKeys.has(k) ? ' (اختياري)' : ''), type:'text', full: k.length > 14 || optKeys.has(k), hint: optKeys.has(k) ? 'إذا تركته فاضي تختفي الجملة كاملة من الخطاب.' : ''}, vals, 'tv_'+i)));
+  const numbered = {}; keys.forEach(k => { const m = k.match(/^(.*\S)\s+(\d+)$/); if(m){ numbered[m[1]] = Math.max(numbered[m[1]] || 0, +m[2]); } });
+  if(Object.keys(numbered).length){
+    const imp = document.createElement('div'); imp.className = 'f full';
+    imp.innerHTML = '<div class="upload"><label class="btn sm primary">📥 استيراد من Excel<input type="file" id="tplXlsx" accept=".xlsx,.xls,.csv"></label><button class="btn sm danger" type="button" id="tplClearRows">مسح الجدول</button></div><span class="hint">ملف فيه أعمدة مثل: الاسم، رقم الهوية/الإقامة، الرقم الوظيفي. يتسع الجدول لـ '+Math.max(...Object.values(numbered))+' صف.</span>';
+    const fh = [...box.querySelectorAll('.sub-h')].find(e => e.textContent.startsWith('عبّ الحقول'));
+    if(fh) fh.after(imp); else box.appendChild(imp);
+    imp.querySelector('#tplXlsx').onchange = e => { const f = e.target.files[0]; if(f) importRows(f, tp, vals, numbered); e.target.value = ''; };
+    imp.querySelector('#tplClearRows').onclick = () => { Object.keys(vals).forEach(k => { if(/\s\d+$/.test(k) && numbered[k.replace(/\s+\d+$/, '')]) delete vals[k]; }); renderFields(); render(); toast('تم مسح بيانات الجدول'); };
+  }
   sub(box, 'نقل القوالب بين الأجهزة');
   const io = document.createElement('div'); io.className = 'f full upload';
   io.innerHTML = '<button class="btn sm" type="button" id="tplExport">تصدير قوالبي</button><label class="btn sm">استيراد قوالب<input type="file" id="tplImport" accept=".json,application/json"></label>';
@@ -1399,6 +1409,41 @@ function renderTemplateFields(box, d){
     }catch(err){ toast('الملف غير صالح. اختر ملف قوالب صدّرته من هذا التطبيق.'); } };
     r.readAsText(f); e.target.value = '';
   };
+}
+// matching Excel headers to template fields (e.g. «الأسم بالعربي» → «اسم الموظف», «رقم الهوية/الإقامة» → «رقم الإقامة»)
+function normAr(s){ return String(s || '').replace(/[\u064B-\u0652\u0640]/g, '').replace(/[أإآ]/g, 'ا').replace(/ة/g, 'ه').replace(/ى/g, 'ي').trim(); }
+function arTokens(s){ return normAr(s).split(/[\s\/\\\-_.()]+/).filter(Boolean).map(w => w.replace(/^ال(?=..)/, '')); }
+function matchColumn(base, headers){
+  const bt = arTokens(base); let best = -1, score = 0;
+  headers.forEach((h, i) => {
+    if(normAr(h) === normAr(base)){ if(score < 100){ score = 100; best = i; } return; }
+    const ht = arTokens(h); const s = bt.filter(w => ht.some(x => x === w || (w.length > 2 && x.includes(w)) || (x.length > 2 && w.includes(x)))).length;
+    if(s > score){ score = s; best = i; }
+  });
+  if(best < 0 && /اسم/.test(base)) best = headers.findIndex(h => /اسم|name/i.test(normAr(h)));
+  return best;
+}
+function importRows(file, tp, vals, numbered){
+  if(!window.XLSX){ toast('تعذر تحميل قارئ ملفات Excel. تأكد من الاتصال بالإنترنت.'); return; }
+  const r = new FileReader();
+  r.onload = () => {
+    try{
+      const wb = XLSX.read(new Uint8Array(r.result), {type:'array'});
+      const rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], {header:1, defval:'', raw:false}).filter(x => x.some(c => String(c).trim()));
+      if(rows.length < 2){ toast('الملف فاضي أو ما فيه صف عناوين'); return; }
+      const hi = rows.findIndex(x => x.filter(c => String(c).trim()).length >= 2); const headers = rows[hi].map(String);
+      const map = {}; Object.keys(numbered).forEach(base => { const c = matchColumn(base, headers); if(c >= 0) map[base] = c; });
+      if(!Object.keys(map).length){ toast('ما لقيت أعمدة مطابقة لحقول الجدول في الملف'); return; }
+      const data = rows.slice(hi + 1).filter(x => Object.values(map).some(c => String(x[c] || '').trim()));
+      const cap = Math.max(...Object.values(numbered));
+      Object.keys(vals).forEach(k => { if(/\s\d+$/.test(k) && numbered[k.replace(/\s+\d+$/, '')]) delete vals[k]; });
+      data.slice(0, cap).forEach((x, n) => { Object.entries(map).forEach(([base, c]) => { if(n < numbered[base]) vals[base + ' ' + (n + 1)] = String(x[c] ?? '').trim(); }); });
+      renderFields(); render();
+      const used = Object.keys(map).map(b => '«'+b+'» ← «'+headers[map[b]]+'»').join('، ');
+      toast(data.length > cap ? 'تم استيراد '+cap+' من '+data.length+' (الجدول يتسع لـ '+cap+' فقط)' : 'تم استيراد '+data.length+' موظف · '+used);
+    }catch(err){ console.error(err); toast('تعذر قراءة الملف. تأكد إنه ملف Excel أو CSV.'); }
+  };
+  r.readAsArrayBuffer(file);
 }
 function renderTplEditor(box){
   const tp = state.tplDraft;
@@ -1756,7 +1801,7 @@ function initCloud(){
 }
 
 /* ---------------- new version check ---------------- */
-const BUILD_ID = '20261116130126';
+const BUILD_ID = '20261116130624';
 async function checkForUpdate(){
   if(!/^https?:/.test(location.protocol)) return;
   try{
