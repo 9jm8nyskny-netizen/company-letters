@@ -156,6 +156,9 @@ button,input,select,textarea{font:inherit;color:inherit}
 .info th{background:#f1f2f4;font-weight:700;white-space:nowrap;width:1%}
 .h3{font-weight:700;font-size:calc(var(--fs) * 1.05);display:flex;align-items:center;gap:2mm;margin-top:1mm}
 .h3::before{content:"";width:2.2mm;height:2.2mm;background:#111;transform:rotate(45deg);flex:none}
+.sgrid{width:100%;border-collapse:collapse;margin-top:3mm;font-size:calc(var(--fs) * .95)}
+.sgrid th{border:.3mm solid #8a8f98;background:#f1f2f4;font-weight:700;padding:1.2mm;width:33.3%}
+.sgrid td{border:.3mm solid #8a8f98;height:14mm}
 .ttbl{width:100%;border-collapse:collapse;font-size:calc(var(--fs) * .95)}
 .ttbl th,.ttbl td{border:.3mm solid #8a8f98;padding:1.1mm 2.5mm;text-align:center;vertical-align:middle}
 .ttbl th{background:#f1f2f4;font-weight:700}
@@ -856,6 +859,11 @@ const BUILTIN_TPLS = [
    to:'السيد / {اسم الموظف}   المحترم\nالرقم الوظيفي: {الرقم الوظيفي}، الفرع: {الفرع}', title:'', subject:'تنبيه بتجاوز العجز النقدي والإيقاف عن العمل على الكاشير',
    body:'نود إحاطتكم علماً بأنه بعد مراجعة تقارير الصندوق الخاصة بكم، تبيّن أن إجمالي العجز النقدي المسجّل عليكم قد تجاوز (500) ريال[[، حيث بلغ ({مبلغ العجز}) ريال]][[ حتى تاريخ {تاريخ آخر جرد}]].\nوعليه، سيتم إيقافكم عن العمل على الكاشير، وذلك حرصاً على ضبط العمليات النقدية وتنظيمها، وضماناً لدقة الإجراءات المتبعة في الفرع.\nونثق بحرصكم على الالتزام بالدقة والعناية في جميع التعاملات النقدية مستقبلاً، متمنين لكم دوام التوفيق.',
    closing:'وتفضلوا بقبول فائق الاحترام والتقدير،'},
+  {...HR_SIGN, id:'final-settlement', ver:1, name:'تسوية مستحقات موظف (مخالصة نهائية)', category:'شؤون الموظفين', showNo:false, light:true, noSign:true, noImport:true, dense:true,
+   to:'', title:'تسوية مستحقات موظف — Final Settlement', subject:'', salutation:'', closing:'',
+   body:'| اسم الموظف | الجنسية | رقم الهوية / الإقامة |\n| {اسم الموظف} | {الجنسية} | {رقم الهوية} |\n## المستحقات\n| م | البيان | من | إلى | عدد الأيام | المبلغ |\n| =م | {بيان المستحق 1} | {من تاريخ 1} | {إلى تاريخ 1} | {عدد الأيام 1} | {مبلغ المستحق 1} |\n| =م | {بيان المستحق 2} | {من تاريخ 2} | {إلى تاريخ 2} | {عدد الأيام 2} | {مبلغ المستحق 2} |\n| =م | {بيان المستحق 3} | {من تاريخ 3} | {إلى تاريخ 3} | {عدد الأيام 3} | {مبلغ المستحق 3} |\n| =م | {بيان المستحق 4} | {من تاريخ 4} | {إلى تاريخ 4} | {عدد الأيام 4} | {مبلغ المستحق 4} |\n| =م | {بيان المستحق 5} | {من تاريخ 5} | {إلى تاريخ 5} | {عدد الأيام 5} | {مبلغ المستحق 5} |\n|  | إجمالي المستحقات |  |  |  | =المجموع |\n## الاستقطاعات\n| م | البيان | المبلغ |\n| =م | {بيان الاستقطاع 1} | {مبلغ الاستقطاع 1} |\n| =م | {بيان الاستقطاع 2} | {مبلغ الاستقطاع 2} |\n| =م | {بيان الاستقطاع 3} | {مبلغ الاستقطاع 3} |\n| =م | {بيان الاستقطاع 4} | {مبلغ الاستقطاع 4} |\n|  | إجمالي الاستقطاعات | =المجموع |\n## صافي المستحق\n| صافي المستحق (رقماً) | صافي المستحق (كتابةً) |\n| {صافي المستحق} ريال | {المبلغ كتابة} |\n## إقرار واستلام\nأقرّ أنا الموقّع أدناه/ {اسم الموظف}، وأنا بكامل الأهلية المعتبرة شرعاً ونظاماً وبمحض اختياري، بأنني استلمت كامل حقوقي النظامية والبالغة ({صافي المستحق}) ريال سعودي ({المبلغ كتابة} لا غير)، وباستلامي هذا المبلغ أكون قد أبرأت ذمة {اسم الشركة} إبراءً تاماً من أي حقوق أو مطالبات حتى تاريخه، ولا يحق لي مستقبلاً التقدم لأي جهة حكومية أو غيرها بأي مطالبة نظير مدة خدمتي، وعلى ذلك أُوقّع.\nالاسم: {اسم الموظف}      التوقيع: ........................................\nالبصمة: ........................................      التاريخ: ........................................',
+   calc:{target:'صافي المستحق', plus:['مبلغ المستحق 1', 'مبلغ المستحق 2', 'مبلغ المستحق 3', 'مبلغ المستحق 4', 'مبلغ المستحق 5'], minus:['مبلغ الاستقطاع 1', 'مبلغ الاستقطاع 2', 'مبلغ الاستقطاع 3', 'مبلغ الاستقطاع 4']}, words:{num:'صافي المستحق', words:'المبلغ كتابة'},
+   signGrid:['الموارد البشرية', 'الحسابات', 'المدير العام']},
   {...HR_SIGN, id:'debt-payment', ver:1, name:'طلب سداد مديونية وإقرار باستقطاع', category:'طلبات الموظفين', showNo:false, light:true, toPos:'afterSubject', noSign:true,
    to:'السادة / إدارة {اسم الشركة}   المحترمين ،،', title:'', subject:'طلب سداد مديونية وإقرار باستقطاع المبلغ', salutation:'السلام عليكم ورحمة الله وبركاته،،',
    body:'أتقدم إليكم بطلب التكرم بسداد المبلغ المستحق عليّ والبالغ قدره ({مبلغ المديونية}) ريال، وذلك نظراً لظروفي الحالية المتمثلة في وجود إيقاف خدمات، مما ترتب عليه تعذّر إيداع راتبي في حسابي البنكي، واضطرار الشركة إلى صرف راتبي نقداً.\nكما أن استمرار إيقاف الخدمات يترتب عليه تعذّر إصدار تصريح خلال فترة الحج.\nوعليه، أرجو من الشركة التكرم بسداد المبلغ نيابةً عني، وأوافق على استرداد المبلغ الذي تقوم الشركة بسداده من خلال أحد الخيارين التاليين:\n1. استقطاع مبلغ ({مبلغ الاستقطاع الشهري}) ريال شهرياً من راتبي حتى سداد كامل المبلغ.\n2. أو استقطاع المبلغ من مستحقاتي السنوية، وفق ما يتم الاتفاق عليه مع الشركة.\nوأقرّ بموافقتي على آلية التسوية التي يتم اعتمادها، والالتزام بسداد كامل المبلغ المستحق للشركة.\nشاكراً لكم حسن تعاونكم وتفهمكم لظروفي، وتفضلوا بقبول خالص الاحترام والتقدير.\nمقدم الطلب: {اسم الموظف}\nرقم الهوية / الإقامة: {رقم الهوية}\nالتوقيع: ...........................................................',
@@ -1126,9 +1134,10 @@ function buildBlocks(){
     if(tp.subject) b.push('<div class="subject"><span>الموضوع / '+F(tp.subject)+'</span></div>');
     if(toHtml && tp.toPos === 'afterSubject') b.push(toHtml);
     if(tp.salutation) b.push('<p class="bold">'+F(tp.salutation)+'</p>');
-    b.push(...parseBody(fillTpl(tp.body, vals, auto)).map(markPh));
+    b.push(...parseBody(fillTpl(tp.body, vals, auto)).map(markPh).map(h => tp.dense ? h.replace('class="ttbl"', 'class="ttbl dense"') : h));
     if(tp.closing) b.push('<p class="closing">'+F(tp.closing)+'</p>');
     if(!tp.noSign) b.push(signBlock({html:'<div class="sl-co">'+F(tp.signCompany)+'</div><div class="sl2 sl-dept">'+F(tp.signDept)+'</div><div class="sl2 sl-name">'+F(tp.signName)+'</div>'}));
+    if(tp.signGrid) b.push('<table class="sgrid"><tr>'+tp.signGrid.map(x => '<th>'+F(x)+'</th>').join('')+'</tr><tr>'+tp.signGrid.map(() => '<td></td>').join('')+'</tr></table>');
     if(tp.approveTitle || tp.approveName) b.push('<div class="approve">'+(tp.approveTitle ? '<div>'+F(tp.approveTitle)+'</div>' : '')+(tp.approveName ? '<div class="sl2">'+F(tp.approveName)+'</div>' : '')+(tp.noDots ? '' : '<div class="dots">..........................................................................</div>')+'</div>');
   }
   if(t === 'clearance'){
@@ -1478,6 +1487,100 @@ function manualNotice(box){
   n.innerHTML = '<b>الخطاب في وضع التحرير المباشر</b><br>عدّل النص داخل الصفحة مباشرة. الحقول هنا (مثل الاسم والرقم) تتحدّث داخل الخطاب وأنت تكتبها.';
   box.appendChild(n);
 }
+/* ---------- amounts in Arabic words (both directions) ---------- */
+const AW_ONES = ['', 'واحد', 'اثنان', 'ثلاثة', 'أربعة', 'خمسة', 'ستة', 'سبعة', 'ثمانية', 'تسعة', 'عشرة', 'أحد عشر', 'اثنا عشر', 'ثلاثة عشر', 'أربعة عشر', 'خمسة عشر', 'ستة عشر', 'سبعة عشر', 'ثمانية عشر', 'تسعة عشر'];
+const AW_TENS = ['', '', 'عشرون', 'ثلاثون', 'أربعون', 'خمسون', 'ستون', 'سبعون', 'ثمانون', 'تسعون'];
+const AW_HUND = ['', 'مائة', 'مائتان', 'ثلاثمائة', 'أربعمائة', 'خمسمائة', 'ستمائة', 'سبعمائة', 'ثمانمائة', 'تسعمائة'];
+function awBelow1000(n){
+  const h = Math.floor(n / 100), r = n % 100, parts = [];
+  if(h) parts.push(AW_HUND[h]);
+  if(r){ if(r < 20) parts.push(AW_ONES[r]); else { const o = r % 10, t = Math.floor(r / 10); parts.push(o ? AW_ONES[o] + ' و' + AW_TENS[t] : AW_TENS[t]); } }
+  return parts.join(' و');
+}
+function awInt(n){
+  if(!n) return 'صفر';
+  const scales = [[1e9, 'مليار', 'ملياران', 'مليارات'], [1e6, 'مليون', 'مليونان', 'ملايين'], [1e3, 'ألف', 'ألفان', 'آلاف']];
+  const parts = [];
+  for(const [v, one, two, many] of scales){
+    const q = Math.floor(n / v); n %= v; if(!q) continue;
+    if(q === 1) parts.push(one); else if(q === 2) parts.push(two);
+    else if(q <= 10) parts.push(awBelow1000(q) + ' ' + many);
+    else parts.push(awBelow1000(q) + ' ' + one);
+  }
+  if(n) parts.push(awBelow1000(n));
+  return parts.join(' و');
+}
+function amountToWords(num){
+  if(num === null || isNaN(num)) return '';
+  const riyal = Math.floor(num + 1e-9), hal = Math.round((num - riyal) * 100);
+  let s = awInt(riyal) + ' ريال سعودي';
+  if(hal) s += ' و' + awInt(hal) + ' هللة';
+  return s;
+}
+const AW_MAP = (() => {
+  const m = {}, norm = awNorm;
+  AW_ONES.forEach((w, i) => { if(w && i < 11) m[norm(w)] = i; });
+  Object.assign(m, {[norm('اثنين')]:2, [norm('احد')]:1, [norm('احدى')]:1, [norm('اثنا')]:2, [norm('اثنتا')]:2, [norm('ثلاث')]:3, [norm('اربع')]:4, [norm('خمس')]:5, [norm('ست')]:6, [norm('سبع')]:7, [norm('ثماني')]:8, [norm('ثمان')]:8, [norm('تسع')]:9, [norm('عشر')]:10});
+  AW_TENS.forEach((w, i) => { if(w){ m[norm(w)] = i * 10; m[norm(w).replace(/ون$/, 'ين')] = i * 10; } });
+  AW_HUND.forEach((w, i) => { if(w){ m[norm(w)] = i * 100; m[norm(w).replace('مائه', 'مئه')] = i * 100; } });
+  Object.assign(m, {[norm('مئتان')]:200, [norm('مائتين')]:200, [norm('مئتين')]:200, [norm('مايه')]:100});
+  return m;
+})();
+function awNorm(w){ return String(w).replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d)).replace(/[ً-ْـ]/g, '').replace(/[أإآ]/g, 'ا').replace(/ة/g, 'ه').replace(/ى/g, 'ي').trim(); }
+function awScale(w){
+  if(/^(الف|الاف|الفا|الفان|الفين|آلاف)$/.test(w)) return [1e3, /^(الفان|الفين)$/.test(w) ? 2 : 0];
+  if(/^(مليون|ملايين|مليونا|مليونان|مليونين)$/.test(w)) return [1e6, /^(مليونان|مليونين)$/.test(w) ? 2 : 0];
+  if(/^(مليار|مليارات|ملياران|مليارين)$/.test(w)) return [1e9, /^(ملياران|مليارين)$/.test(w) ? 2 : 0];
+  return null;
+}
+function awParseInt(text){
+  const toks = awNorm(text).replace(/[،,.()\-]/g, ' ').split(/\s+/).filter(Boolean);
+  let total = 0, cur = 0, any = false;
+  for(let t of toks){
+    if(/^\d+$/.test(t)){ cur += +t; any = true; continue; }
+    let sc = awScale(t), v = AW_MAP[t];
+    if(sc === null && v === undefined && t.length > 2 && t[0] === 'و'){ t = t.slice(1); sc = awScale(t); v = AW_MAP[t]; }
+    if(sc){ const [mult, fixed] = sc; total += (fixed || cur || 1) * mult; cur = 0; any = true; continue; }
+    if(v === undefined) continue;
+    any = true;
+    if(t === 'مائه' || t === 'مئه' || t === 'مايه'){ cur = (cur && cur < 10 ? cur : 1) * 100 + (cur >= 10 ? cur : 0); continue; }
+    if(v === 10 && t === 'عشر' && cur > 0 && cur < 10){ cur += 10; continue; }
+    cur += v;
+  }
+  return any ? total + cur : null;
+}
+function wordsToAmount(text){
+  const s = awNorm(text).replace(/فقط|لا غير|سعودي|سعوديه|ريالات|ريالا/g, ' ');
+  const m = s.split(/ريال/);
+  const riyal = awParseInt(m[0]); if(riyal === null) return null;
+  let hal = 0; if(m[1] && /هلل/.test(m[1])){ const h = awParseInt(m[1].replace(/هللات|هلله|هللا/g, ' ')); if(h) hal = h; }
+  return riyal + hal / 100;
+}
+const awNum = v => { const s = String(v || '').replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d)).replace(/[^\d.]/g, ''); return /\d/.test(s) ? parseFloat(s) : null; };
+
+// templates can tie fields together: calc (target = sum(plus) - sum(minus)) and words (number <-> written amount)
+function linkTplFields(tp, vals, box){
+  if(!tp.calc && !tp.words) return;
+  const input = k => { const w = [...box.querySelectorAll('.f')].find(x => { const l = x.querySelector('label'); return l && l.textContent.replace(/ \(اختياري\)$/, '') === k; }); return w && w.querySelector('input,textarea'); };
+  const setVal = (k, v) => { vals[k] = v; const el = input(k); if(el && document.activeElement !== el) el.value = v; };
+  const W = tp.words;
+  const fromNum = () => { if(!W) return; const n = awNum(vals[W.num]); setVal(W.words, n === null ? '' : amountToWords(n)); };
+  if(tp.calc){
+    const C = tp.calc;
+    const recalc = () => {
+      const sum = ks => ks.reduce((a, k) => { const n = awNum(vals[k]); return n === null ? a : a + n; }, 0);
+      const anyIn = C.plus.concat(C.minus).some(k => awNum(vals[k]) !== null); if(!anyIn) return;
+      setVal(C.target, fmtNum(Math.round((sum(C.plus) - sum(C.minus)) * 100) / 100)); fromNum(); renderSoon();
+    };
+    C.plus.concat(C.minus).forEach(k => { const el = input(k); if(el) el.addEventListener('input', recalc); });
+  }
+  if(W){
+    const n = input(W.num), w = input(W.words);
+    if(n) n.addEventListener('input', () => { fromNum(); renderSoon(); });
+    if(w) w.addEventListener('input', () => { const a = wordsToAmount(vals[W.words]); if(a !== null) setVal(W.num, fmtNum(a)); renderSoon(); });
+    if(w){ const h = w.closest('.f').querySelector('.hint') || w.closest('.f').appendChild(Object.assign(document.createElement('span'), {className:'hint'})); h.textContent = 'يتحدّث تلقائياً مع الرقم، ولو كتبته بالحروف يتغيّر الرقم.'; }
+  }
+}
 function renderTemplateFields(box, d){
   if(state.tplDraft){ renderTplEditor(box); return; }
   manualNotice(box);
@@ -1505,7 +1608,7 @@ function renderTemplateFields(box, d){
   const optKeys = new Set(); TPL_TEXT_KEYS.forEach(f => String(tp[f]||'').replace(/\[\[([\s\S]*?)\]\]/g, (m, inner) => { [...inner.matchAll(/\{([^{}\n]+)\}/g)].forEach(x => optKeys.add(x[1].trim())); return m; }));
   keys.forEach((k, i) => box.appendChild(fieldEl({k, label:k + (optKeys.has(k) ? ' (اختياري)' : ''), type:'text', full: k.length > 14 || optKeys.has(k), hint: optKeys.has(k) ? 'إذا تركته فاضي تختفي الجملة كاملة من الخطاب.' : ''}, vals, 'tv_'+i)));
   const numbered = {}; keys.forEach(k => { const m = k.match(/^(.*\S)\s+(\d+)$/); if(m){ numbered[m[1]] = Math.max(numbered[m[1]] || 0, +m[2]); } });
-  if(Object.keys(numbered).length){
+  if(Object.keys(numbered).length && !tp.noImport){
     const imp = document.createElement('div'); imp.className = 'f full';
     imp.innerHTML = '<div class="upload"><label class="btn sm primary">📥 استيراد من Excel<input type="file" id="tplXlsx" accept=".xlsx,.xls,.csv"></label><button class="btn sm danger" type="button" id="tplClearRows">مسح الجدول</button></div><span class="hint">ملف فيه أعمدة مثل: الاسم، رقم الهوية/الإقامة، الرقم الوظيفي. يتسع الجدول لـ '+Math.max(...Object.values(numbered))+' صف.</span>';
     const fh = [...box.querySelectorAll('.sub-h')].find(e => e.textContent.startsWith('عبّ الحقول'));
@@ -1513,6 +1616,7 @@ function renderTemplateFields(box, d){
     imp.querySelector('#tplXlsx').onchange = e => { const f = e.target.files[0]; if(f) importRows(f, tp, vals, numbered); e.target.value = ''; };
     imp.querySelector('#tplClearRows').onclick = () => { Object.keys(vals).forEach(k => { if(/\s\d+$/.test(k) && numbered[k.replace(/\s+\d+$/, '')]) delete vals[k]; }); renderFields(); render(); toast('تم مسح بيانات الجدول'); };
   }
+  linkTplFields(tp, vals, box);
   sub(box, 'نقل القوالب بين الأجهزة');
   const io = document.createElement('div'); io.className = 'f full upload';
   io.innerHTML = '<button class="btn sm" type="button" id="tplExport">تصدير قوالبي</button><label class="btn sm">استيراد قوالب<input type="file" id="tplImport" accept=".json,application/json"></label>';
@@ -1924,7 +2028,7 @@ function initCloud(){
 }
 
 /* ---------------- new version check ---------------- */
-const BUILD_ID = '20261123132052';
+const BUILD_ID = '20261123135426';
 async function checkForUpdate(){
   if(!/^https?:/.test(location.protocol)) return;
   try{
@@ -2012,7 +2116,8 @@ ptDrop.addEventListener('dragleave', () => { $('#ptEmpty') && $('#ptEmpty').clas
 ptDrop.addEventListener('drop', e => { e.preventDefault(); const f = e.dataTransfer.files[0]; if(f) ptLoadFile(f); });
 
 async function ptRenderPages(data){
-  const pdf = await pdfjsLib.getDocument({data}).promise;
+  const base = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/';
+  const pdf = await pdfjsLib.getDocument({data, cMapUrl:base+'cmaps/', cMapPacked:true, standardFontDataUrl:base+'standard_fonts/'}).promise;
   const box = $('#ptPages'); box.innerHTML = ''; PT.pages = [];
   for(let n = 1; n <= pdf.numPages; n++){
     const page = await pdf.getPage(n);
