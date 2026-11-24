@@ -972,6 +972,12 @@ stampToday(false);
 
 const D = () => state.data[state.type];
 const L = () => state.look[state.type];
+// which signature lines are hidden: kept per template, so hiding a line in one template doesn't hide it in the others
+function lineHides(){ const lk = L(); if(state.type !== 'template') return lk; const id = (D().tplId) || 'x'; lk.tplHide = lk.tplHide || {};
+  if(!lk.tplHideMig){ lk.tplHideMig = true; const old = ['hideSignCo','hideSignDept','hideSignName'].filter(k => lk[k]);
+    if(old.length) allTpls().forEach(t => { if(t.signName === HR_SIGN.signName){ const o = lk.tplHide[t.id] = lk.tplHide[t.id] || {}; old.forEach(k => o[k] = true); } });
+    old.forEach(k => delete lk[k]); }
+  return lk.tplHide[id] = lk.tplHide[id] || {}; }
 const saveDraft = () => store.set('draft', state);
 
 /* ---------------- helpers ---------------- */
@@ -1075,7 +1081,7 @@ function signBlock(lines){
   const al = lk.align || 'left';
   { let h = lines.html;
     const drop = cls => { h = h.replace(new RegExp('<div class="[^"]*\\b'+cls+'\\b[^"]*">[\\s\\S]*?<\\/div>'), ''); };
-    if(lk.hideSignCo) drop('sl-co'); if(lk.hideSignDept) drop('sl-dept'); if(lk.hideSignName) drop('sl-name');
+    const hd = lineHides(); if(hd.hideSignCo) drop('sl-co'); if(hd.hideSignDept) drop('sl-dept'); if(hd.hideSignName) drop('sl-name');
     lines = {...lines, html:h}; }
   let stampSrc = null;
   if(lk.hideStamp) stampSrc = null;
@@ -1770,7 +1776,7 @@ function renderLookControls(){
   ss.disabled = !!lk.hideStamp; sg.disabled = !!lk.hideSig; $('#stampSize').disabled = !!lk.hideStamp;
   $('#stStamp').textContent = lk.hideStamp ? 'محذوف من الخطاب' : 'ظاهر في الخطاب';
   $('#stSig').textContent = lk.hideSig ? 'محذوف من الخطاب' : 'ظاهر في الخطاب';
-  $('#showCo').checked = !lk.hideSignCo; $('#showDept').checked = !lk.hideSignDept; $('#showName').checked = !lk.hideSignName;
+  { const hd = lineHides(); $('#showCo').checked = !hd.hideSignCo; $('#showDept').checked = !hd.hideSignDept; $('#showName').checked = !hd.hideSignName; }
   $('#tgCo').hidden = state.type === 'clearance' || state.type === 'violations';
   $('#selAlign').value = lk.align || 'left';
   $('#stampSize').value = lk.stampSize || 34; $('#stampSizeO').textContent = (lk.stampSize||34)+' مم';
@@ -1780,7 +1786,7 @@ function renderLookControls(){
 }
 $('#autofit').onchange = e => { state.autofit = e.target.checked; render(); };
 $('#showStamp').onchange = e => { L().hideStamp = !e.target.checked; renderLookControls(); render(); toast(e.target.checked ? 'الختم ظاهر' : 'تم حذف الختم من الخطاب'); };
-const lineToggle = (id, key, label) => { $(id).onchange = e => { L()[key] = !e.target.checked; renderLookControls(); render(); toast(e.target.checked ? label+' ظاهر في التوقيع' : 'تم حذف '+label+' من التوقيع'); }; };
+const lineToggle = (id, key, label) => { $(id).onchange = e => { lineHides()[key] = !e.target.checked; renderLookControls(); render(); toast(e.target.checked ? label+' ظاهر في التوقيع' : 'تم حذف '+label+' من التوقيع'); }; };
 lineToggle('#showCo', 'hideSignCo', 'اسم الشركة'); lineToggle('#showDept', 'hideSignDept', 'المسمى'); lineToggle('#showName', 'hideSignName', 'اسم الموقّع');
 $('#showSig').onchange = e => { L().hideSig = !e.target.checked; renderLookControls(); render(); toast(e.target.checked ? 'التوقيع ظاهر' : 'تم حذف التوقيع من الخطاب'); };
 $('#selStamp').onchange = e => { L().stamp = e.target.value; render(); };
@@ -2038,7 +2044,7 @@ function initCloud(){
 }
 
 /* ---------------- new version check ---------------- */
-const BUILD_ID = '20261124134024';
+const BUILD_ID = '20261124134441';
 async function checkForUpdate(){
   if(!/^https?:/.test(location.protocol)) return;
   try{
